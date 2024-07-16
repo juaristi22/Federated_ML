@@ -19,3 +19,5 @@ import os
 import argparse
 import Federated_model as Fd
 import Branching_factor_hierarchy as Bf
+
+def experiment_config():
