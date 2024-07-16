@@ -38,41 +38,40 @@ def experiment_configs(max_n_models, max_bf):
                 config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{data_dist}")
 
     return configurations, config_descriptions
-def experiment_running(max_n_models, max_bf):
-    device = "mps"
+def experiment_running(n_models, bf):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.0001
     BATCH_SIZE = 32
     EPOCHS = 3
-    ROUNDS = 2
+    ROUNDS = 20
 
     general_testloader = HA.general_testloader
 
     #configurations, config_descriptions = experiment_configs(
                                             #max_n_models=max_n_models,
                                             #max_bf=max_bf)
+    #for configuration in configurations:
+    i = 0
+    print(f"Running experiment on configuration")
+    local_models_list, naming_dict = HA.initialize_models(
+        NUM_MODELS=n_models,
+        epochs=EPOCHS,
+        lr=learning_rate)
+    local_trainloader, split_proportions = FM.split_data(
+        data=FM.train_data,
+        n_splits=n_models,
+        batch_size=BATCH_SIZE,
+        equal_sizes=True)
 
-    for configuration in configurations:
-        i = 0
-        print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
-        local_models_list, naming_dict = HA.initialize_models(
-            NUM_MODELS=configuration["n_models"],
-            epochs=EPOCHS,
-            lr=learning_rate)
-        local_trainloader, split_proportions = FM.split_data(
-            data=FM.train_data,
-            n_splits=configuration["n_models"],
-            batch_size=BATCH_SIZE,
-            equal_sizes=configuration["data_dist"])
-
-        HA.create_hierarchy(local_models_list=local_models_list,
-                            naming_dict=naming_dict,
-                            local_trainloader=local_trainloader,
-                            general_testloader=general_testloader,
-                            NUM_ROUNDS=ROUNDS,
-                            split_proportions=split_proportions,
-                            device=device,
-                            branch_f=configuration["bf"])
-        i += 1
+    HA.create_hierarchy(local_models_list=local_models_list,
+                        naming_dict=naming_dict,
+                        local_trainloader=local_trainloader,
+                        general_testloader=general_testloader,
+                        NUM_ROUNDS=ROUNDS,
+                        split_proportions=split_proportions,
+                        device=device,
+                        branch_f=bf)
+    i += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -94,5 +93,5 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
 
-    experiment_running(max_n_models=max_n_models, max_bf=max_bf)
+    experiment_running(n_models=max_n_models, bf=max_bf)
     #experiment_running(max_n_models=3, max_bf=3)
