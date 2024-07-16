@@ -17,10 +17,10 @@ import matplotlib.pyplot as plt
 import json
 import os
 import argparse
-import Federated_model as Fd
+import Federated_Model as FM
 
 device="mps"
-class Client(Fd.FashionMNISTModel):
+class Client(FM.FashionMNISTModel):
     def __init__(self, input_shape, hidden_units, output_shape,
                  epochs=None, data=None, learning_rate=0.0001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
@@ -42,7 +42,7 @@ class Client(Fd.FashionMNISTModel):
             y_pred = self.forward(X)
             loss = loss_fn(y_pred, y)
             train_loss += loss.item()
-            train_acc += Fd.accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
+            train_acc += FM.accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
 
             loss.backward()
             optimizer.step()
@@ -69,7 +69,7 @@ class Client(Fd.FashionMNISTModel):
                 test_pred = self.forward(X)
                 loss = loss_fn(test_pred, y)
                 test_loss += loss.item()
-                test_acc += Fd.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
+                test_acc += FM.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
                 num_steps += 1
 
             test_loss /= num_steps
@@ -84,7 +84,7 @@ class Client(Fd.FashionMNISTModel):
     def __str__(self):
         return self.name
 
-class Aggregator(Fd.FashionMNISTModel):
+class Aggregator(FM.FashionMNISTModel):
     def __init__(self, input_shape, hidden_units, output_shape, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.parent = None
@@ -104,7 +104,7 @@ class Aggregator(Fd.FashionMNISTModel):
                 test_pred = self.forward(X)
                 loss = loss_fn(test_pred, y)
                 test_loss += loss.item()
-                test_acc += Fd.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
+                test_acc += FM.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
                 num_steps += 1
 
             test_loss /= num_steps
@@ -164,20 +164,20 @@ def initialize_models(
 
 
 BATCH_SIZE = 32
-NUM_MODELS = 5
+NUM_MODELS = 3
 equal_sizes = True
 NUM_ROUNDS = 3
-BRANCH_FACTOR = 4
+BRANCH_FACTOR = 2
 
 general_trainloader = DataLoader(
-    dataset=Fd.train_data, batch_size=BATCH_SIZE, shuffle=True)
+    dataset=FM.train_data, batch_size=BATCH_SIZE, shuffle=True)
 
 general_testloader = DataLoader(
-    dataset=Fd.test_data, batch_size=BATCH_SIZE, shuffle=True)
+    dataset=FM.test_data, batch_size=BATCH_SIZE, shuffle=True)
 
 # split training data for the local models
-local_trainloader, split_proportions = Fd.split_data(
-    data=Fd.train_data,
+local_trainloader, split_proportions = FM.split_data(
+    data=FM.train_data,
     n_splits=NUM_MODELS,
     batch_size=BATCH_SIZE,
     equal_sizes=equal_sizes)
@@ -258,10 +258,10 @@ def record_experiments(
             + str(branching_factor)
             + "_nrounds_"
             + str(n_rounds)
-            + ".json",
+            + ".png",
         )
 
-    Fd.plot_loss_curves(aggregator_results["Global_Model"], filename=filename)
+    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename)
 
     return results_json
 
@@ -487,4 +487,4 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, device=device, 
 client_results, aggregator_results, naming_dict = create_hierarchy(local_models_list, naming_dict=naming_dict, NUM_ROUNDS=NUM_ROUNDS)
 for i in aggregator_results.items():
     print(i)
-    Fd.plot_loss_curves(i[1])
+    FM.plot_loss_curves(i[1])

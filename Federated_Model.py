@@ -24,7 +24,7 @@ train_data = datasets.FashionMNIST(
 test_data = datasets.FashionMNIST(
     root="data", train=False, download=True, transform=ToTensor())
 
-device = "gpu"
+device = "mps"
 
 class_names = train_data.classes
 class_to_idx = train_data.class_to_idx
@@ -489,5 +489,3 @@ if __name__ == "__main__":
             NUM_MODELS=2,
             NUM_ROUNDS=1,
             EPOCHS=1)
-
-#hello
