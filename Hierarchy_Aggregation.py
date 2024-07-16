@@ -32,27 +32,28 @@ class Client(FM.FashionMNISTModel):
         self.name = None
 
     def train_step(self, data_loader, loss_fn, optimizer, device=device):
-        train_loss, train_acc = 0, 0
+        for epoch in range(self.epochs):
+            train_loss, train_acc = 0, 0
 
-        self.train()
-        num_steps = 0
+            self.train()
+            num_steps = 0
 
-        for batch, (X, y) in enumerate(data_loader):
-            X, y = X.to(device), y.to(device)
-            y_pred = self.forward(X)
-            loss = loss_fn(y_pred, y)
-            train_loss += loss.item()
-            train_acc += FM.accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
+            for batch, (X, y) in enumerate(data_loader):
+                X, y = X.to(device), y.to(device)
+                y_pred = self.forward(X)
+                loss = loss_fn(y_pred, y)
+                train_loss += loss.item()
+                train_acc += FM.accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
 
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
 
-            num_steps += 1
+                num_steps += 1
 
-        train_loss /= num_steps
-        train_acc /= num_steps
-        train_acc *= 100
+            train_loss /= num_steps
+            train_acc /= num_steps
+            train_acc *= 100
 
         # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
 
@@ -133,7 +134,7 @@ class Aggregator(FM.FashionMNISTModel):
         return self.name
 
 def initialize_models(
-    NUM_MODELS, device=device):
+    NUM_MODELS, device=device, epochs=2, lr=0.0001):
     input_shape = 1
     hidden_units = 10
     output_shape = 10
@@ -147,7 +148,8 @@ def initialize_models(
                         input_shape=input_shape,
                         hidden_units=hidden_units,
                         output_shape=output_shape,
-                        epochs=2).to(device)
+                        learning_rate=lr,
+                        epochs=epochs).to(device)
             instance.named(i)
             naming_dict[instance.name] = instance
             instance.optimizer = torch.optim.SGD(params=instance.parameters(), lr=instance.lr)
@@ -283,7 +285,9 @@ def evaluate_aggregator(model, test_data, agg_results, loss_fn):
     agg_results[model.name]["test_acc"].append(test_acc)
     return agg_results
 
-def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, device=device, branch_f=BRANCH_FACTOR):
+def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportions,
+                     local_trainloader, general_testloader,
+                     device=device, branch_f=BRANCH_FACTOR):
     loss_fn = nn.CrossEntropyLoss()
     client_results = {}
     for i in local_models_list:
@@ -483,8 +487,10 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, device=device, 
 
     return client_results, aggregator_results, naming_dict
 
-
-client_results, aggregator_results, naming_dict = create_hierarchy(local_models_list, naming_dict=naming_dict, NUM_ROUNDS=NUM_ROUNDS)
-for i in aggregator_results.items():
-    print(i)
-    FM.plot_loss_curves(i[1])
+if __name__ == "__main__":
+    client_results, aggregator_results, naming_dict = create_hierarchy(local_models_list,
+                                                                       split_proportions=split_proportions,
+                                                                       local_trainloader=local_trainloader,
+                                                                       general_testloader=general_testloader,
+                                                                       naming_dict=naming_dict,
+                                                                       NUM_ROUNDS=NUM_ROUNDS)
