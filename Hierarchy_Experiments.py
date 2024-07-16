@@ -47,9 +47,9 @@ def experiment_running(max_n_models, max_bf):
 
     general_testloader = HA.general_testloader
 
-    configurations, config_descriptions = experiment_configs(
-                                            max_n_models=max_n_models,
-                                            max_bf=max_bf)
+    #configurations, config_descriptions = experiment_configs(
+                                            #max_n_models=max_n_models,
+                                            #max_bf=max_bf)
 
     for configuration in configurations:
         i = 0
@@ -72,8 +72,6 @@ def experiment_running(max_n_models, max_bf):
                             split_proportions=split_proportions,
                             device=device,
                             branch_f=configuration["bf"])
-        if i > 0:
-            break
         i += 1
 
 if __name__ == "__main__":

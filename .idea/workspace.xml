@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Federated_Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Hierarchy_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Hierarchy_Aggregation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Hierarchy_Experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Hierarchy_Experiments.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
