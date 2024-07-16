@@ -39,7 +39,7 @@ def experiment_configs(max_n_models, max_bf):
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf):
-    device = "cuda"
+    device = "mps"
     learning_rate = 0.0001
     BATCH_SIZE = 32
     EPOCHS = 3
@@ -72,6 +72,8 @@ def experiment_running(max_n_models, max_bf):
                             split_proportions=split_proportions,
                             device=device,
                             branch_f=configuration["bf"])
+        if i > 0:
+            break
         i += 1
 
 if __name__ == "__main__":
@@ -91,8 +93,8 @@ if __name__ == "__main__":
     )
 
     args = vars(parser.parse_args())
-    #max_n_models = args["max_n_models"]
-    #max_bf = args["max_bf"]
+    max_n_models = args["max_n_models"]
+    max_bf = args["max_bf"]
 
-    #experiment_running(max_n_models=max_n_models, max_bf=max_bf)
-    experiment_running(max_n_models=4, max_bf=3)
+    experiment_running(max_n_models=max_n_models, max_bf=max_bf)
+    #experiment_running(max_n_models=3, max_bf=3)

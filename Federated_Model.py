@@ -24,7 +24,7 @@ train_data = datasets.FashionMNIST(
 test_data = datasets.FashionMNIST(
     root="data", train=False, download=True, transform=ToTensor())
 
-device = "cuda"
+device = "mps"
 
 class_names = train_data.classes
 class_to_idx = train_data.class_to_idx
