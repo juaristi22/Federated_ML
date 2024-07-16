@@ -40,7 +40,7 @@ def experiment_configs(max_n_models, max_bf):
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf):
-    device = "mps"
+    device = "cuda"
     learning_rate = 0.0001
     BATCH_SIZE = 32
     EPOCHS = 3

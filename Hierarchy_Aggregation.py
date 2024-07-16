@@ -19,7 +19,7 @@ import os
 import argparse
 import Federated_Model as FM
 
-device="mps"
+device="cuda"
 class Client(FM.FashionMNISTModel):
     def __init__(self, input_shape, hidden_units, output_shape,
                  epochs=None, data=None, learning_rate=0.0001, device=device):
