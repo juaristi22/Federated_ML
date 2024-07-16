@@ -65,9 +65,7 @@ class FashionMNISTModel(nn.Module):
 
 
 global_model = FashionMNISTModel(input_shape=1, hidden_units=10, output_shape=10).to(
-    device
-)
-print(next(global_model.parameters()).device)
+    device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
 

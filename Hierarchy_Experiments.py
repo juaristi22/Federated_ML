@@ -20,7 +20,6 @@ import argparse
 import Federated_Model as FM
 import Hierarchy_Aggregation as HA
 
-
 def experiment_configs(max_n_models, max_bf):
     NUM_MODELS = [i for i in range(2, max_n_models+1)]
     BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
@@ -54,6 +53,7 @@ def experiment_running(max_n_models, max_bf):
 
     for configuration in configurations:
         i = 0
+        print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
         local_models_list, naming_dict = HA.initialize_models(
             NUM_MODELS=configuration["n_models"],
             epochs=EPOCHS,
@@ -72,8 +72,27 @@ def experiment_running(max_n_models, max_bf):
                             split_proportions=split_proportions,
                             device=device,
                             branch_f=configuration["bf"])
-
-        print(config_descriptions[i])
         i += 1
 
-experiment_running(max_n_models=4, max_bf=3)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="Federated Model Hierarchy testing",
+        description="Runs and experiments on a federated model to explore different hierarchical aggregations"
+    )
+    parser.add_argument(
+        "--max_n_models",
+        type=int,
+        help="maximum number of models for the last experiment config"
+    )
+    parser.add_argument(
+        "--max_bf",
+        type=int,
+        help="maximum branching factor for the last experiment config",
+    )
+
+    args = vars(parser.parse_args())
+    #max_n_models = args["max_n_models"]
+    #max_bf = args["max_bf"]
+
+    #experiment_running(max_n_models=max_n_models, max_bf=max_bf)
+    experiment_running(max_n_models=4, max_bf=3)
