@@ -1,21 +1,20 @@
 #!/bin/bash
 #SBATCH --job-name="FL-test"
 #SBATCH --output="FL-test-out.single.out"
-#SBATCH --partition=compute
-#SBATCH --nodes=2
+#SBATCH --partition=general
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --gres=gpu:1
 #SBATCH --mem=240G 
 #SBATCH --export=ALL
 #SBATCH -t 00:30:00
 
 export NODES=$SLURM_JOB_NUM_NODES
-ipad=$(hostname -I | awk '{print $3}')
-echo $ipad
 module load anaconda3/2021.05
 conda activate FLproject
 for num_workers in 1 2 4 8 16 32 64 128
 do
 
-	srun --ntasks 1 -l --exclude=$SLURMD_NODENAME ~/Federated_ML/run.sh $num_workers $ipad
+	srun --ntasks 1 -l ~/Federated_ML/run.sh $num_workers
 	wait
 done
