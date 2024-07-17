@@ -166,7 +166,7 @@ def initialize_models(
 
 
 BATCH_SIZE = 32
-NUM_MODELS = 3
+NUM_MODELS = 5
 equal_sizes = True
 NUM_ROUNDS = 3
 BRANCH_FACTOR = 2
@@ -192,6 +192,7 @@ def record_experiments(
     split_proportions,
     n_rounds,
     branching_factor,
+    height,
     client_results,
     aggregator_results):
 
@@ -202,6 +203,7 @@ def record_experiments(
         "data_split_proportions": split_proportions,
         "n_rounds": n_rounds,
         "max_branching_factor": branching_factor,
+        "height": height,
         "client_results": client_results,
         "aggregator_results": aggregator_results,
     }
@@ -225,6 +227,8 @@ def record_experiments(
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
             + "_nrounds_"
             + str(n_rounds)
             + ".json",
@@ -244,6 +248,8 @@ def record_experiments(
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
             + "_nrounds_"
             + str(n_rounds)
             + ".json",
@@ -263,6 +269,8 @@ def record_experiments(
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
             + "_nrounds_"
             + str(n_rounds)
             + ".png",
@@ -290,9 +298,25 @@ def evaluate_aggregator(model, test_data, agg_results, loss_fn):
     agg_results[model.name]["test_acc"].append(test_acc)
     return agg_results
 
+def compute_bf(n_leafs, height):
+    bf = n_leafs * (1/height)
+    bf = round(bf)
+    return bf
 def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportions,
                      local_trainloader, general_testloader,
-                     device=device, branch_f=BRANCH_FACTOR):
+                     device=device, branch_f=None, height=None):
+    if (branch_f == None) and (height == None):
+        raise ValueError("Please choose either a branching factor or "
+                         "height hyperparameter to create the aggregation hierarchy")
+    elif (branch_f != None) and (height != None):
+        raise ValueError("Please choose only either a branching factor or "
+                         "height hyperparameter to create the aggregation hierarchy, "
+                         "setting the other to None")
+    elif (branch_f != None) and (height == None):
+        pass
+    elif (branch_f == None) and (height != None):
+        branch_f = compute_bf(len(local_models_list), height)
+
     loss_fn = nn.CrossEntropyLoss()
     client_results = {}
     for i in local_models_list:
@@ -307,6 +331,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
         client_models = copy.copy(local_models_list)
         aggregators = []
         iteration = 0
+        genealogy = []
         while client_models:
             model_num = 0
             if len(client_models) > (branch_f - 1):
@@ -397,6 +422,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                 #access aggregators
                 for i in range(branch_f):
                     agg = aggregators.pop(0)
+                    genealogy.append(agg)
 
                     #evaluate their performance
                     aggregator_results = evaluate_aggregator(model=agg,
@@ -434,6 +460,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     # access aggregators
                     for i in range(len(aggregators)):
                         agg = aggregators.pop(0)
+                        genealogy.append(agg)
 
                         # evaluate their performance
                         aggregator_results = evaluate_aggregator(model=agg,
@@ -468,6 +495,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                 else:
                     #the last remaining aggregator contains our global model
                     global_model = aggregators.pop(0)
+                    genealogy.append(global_model)
                     # evaluate global models' performance
                     aggregator_results = evaluate_aggregator(model=global_model,
                                                              test_data=general_testloader,
@@ -481,21 +509,27 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     aggregator_results[global_model.name] = global_results
     naming_dict[global_model.name] = global_model
 
+    for i in genealogy:
+        print(f"{i.name}´s children: {i.children_nodes}")
+
     record_experiments(
         model=client,
         num_clients=NUM_MODELS,
         split_proportions=split_proportions,
         n_rounds=NUM_ROUNDS,
         branching_factor=branch_f,
+        height=height,
         client_results=client_results,
         aggregator_results=aggregator_results)
 
-    return client_results, aggregator_results, naming_dict
+    return client_results, aggregator_results, naming_dict, genealogy
 
 if __name__ == "__main__":
-    client_results, aggregator_results, naming_dict = create_hierarchy(local_models_list,
+    client_results, aggregator_results, naming_dict, genealogy = create_hierarchy(local_models_list,
                                                                        split_proportions=split_proportions,
                                                                        local_trainloader=local_trainloader,
                                                                        general_testloader=general_testloader,
+                                                                       branch_f=BRANCH_FACTOR,
+                                                                       #height=4,
                                                                        naming_dict=naming_dict,
                                                                        NUM_ROUNDS=NUM_ROUNDS)

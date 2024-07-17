@@ -68,6 +68,7 @@ def experiment_running(n_models, bf):
                         local_trainloader=local_trainloader,
                         general_testloader=general_testloader,
                         NUM_ROUNDS=ROUNDS,
+                        height=None,
                         split_proportions=split_proportions,
                         device=device,
                         branch_f=bf)
