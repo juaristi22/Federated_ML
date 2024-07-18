@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name="FL-test"
-#SBATCH --output="FL-test-out.single.out"
+#SBATCH --output="FL_test_out.txt"
 #SBATCH --partition=general
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -10,11 +10,10 @@
 #SBATCH -t 00:30:00
 
 export NODES=$SLURM_JOB_NUM_NODES
-module load anaconda3/2021.05
+module load anaconda3/2021.05FL_
 conda activate FLproject
 for num_workers in 1 2 4 8 16 32 64 128
 do
-
 	srun --ntasks 1 -l ~/Federated_ML/run.sh $num_workers
 	wait
 done

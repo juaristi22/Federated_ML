@@ -18,10 +18,10 @@ import json
 import os
 import argparse
 
-train_data = datasets.FashionMNIST(
+train_data = datasets.CIFAR100(
     root="data", train=True, download=True, transform=ToTensor())
 
-test_data = datasets.FashionMNIST(
+test_data = datasets.CIFAR100(
     root="data", train=False, download=True, transform=ToTensor())
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
@@ -55,7 +55,7 @@ class FashionMNISTModel(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 14 * 14, out_features=output_shape),
+            nn.Linear(in_features=hidden_units * 16 * 16, out_features=output_shape),
         )
 
     def forward(self, x):
@@ -64,10 +64,10 @@ class FashionMNISTModel(nn.Module):
         return x
 
 
-global_model = FashionMNISTModel(input_shape=1, hidden_units=10, output_shape=10).to(
+global_model = FashionMNISTModel(input_shape=3, hidden_units=10, output_shape=100).to(
     device)
 
-accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
+accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=100).to(device)
 
 def train_step(model, data_loader, loss_fn, optimizer, device):
     train_loss, train_acc = 0, 0
@@ -241,6 +241,7 @@ def plot_loss_curves(results, filename=None):
 
     plt.figure(figsize=(15, 7))
     plt.subplot(1, 2, 1)
+    plt.grid()
 
     if loss and len(loss) > 0:
         plt.plot(rounds, loss, label="train_loss", color="blue")
@@ -299,9 +300,9 @@ def federate_model(
     BATCH_SIZE = 32
     loss_fn = nn.CrossEntropyLoss()
 
-    input_shape = 1
+    input_shape = 3
     hidden_units = 10
-    output_shape = 10
+    output_shape = 100
 
     # split training data for the local models
     local_trainloader, split_proportions = split_data(

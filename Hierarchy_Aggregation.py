@@ -352,7 +352,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
 
                 if round == 0:
                     #create an aggregator for the trained models
-                    agg = Aggregator(input_shape=1, hidden_units=10, output_shape=10).to(device)
+                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -391,7 +391,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     model_num += 1
 
                 if round == 0:
-                    agg = Aggregator(input_shape=1, hidden_units=10, output_shape=10).to(device)
+                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -432,7 +432,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     tested_aggs.append(agg)
 
                 if round == 0:
-                    new_agg = Aggregator(input_shape=1, hidden_units=10, output_shape=10).to(device)
+                    new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
                     new_agg.named(iteration)
                     naming_dict[new_agg.name] = new_agg
                     aggregator_results[new_agg.name] = copy.deepcopy(results)
@@ -470,7 +470,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                         tested_aggs.append(agg)
 
                     if round == 0:
-                        new_agg = Aggregator(input_shape=1, hidden_units=10, output_shape=10).to(device)
+                        new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
                         new_agg.named(iteration)
                         naming_dict[new_agg.name] = new_agg
                         aggregator_results[new_agg.name] = copy.deepcopy(results)
