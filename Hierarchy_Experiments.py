@@ -21,6 +21,21 @@ import Federated_Model as FM
 import Hierarchy_Aggregation as HA
 
 def experiment_configs(max_n_models, max_bf):
+    """
+    Configures all possible combinations of
+        the desired hyperparameters to be tested
+
+    Parameters
+    ----------
+    max_n_models: int, maximum number of client models to test for
+    max_bf: int, maximum branching factor to test for
+
+    Returns
+    -------
+    configurations: list[dicts], all configurations with
+        the respective values of each hyperparameter
+    config_descriptions: list[str], descriptions of all produced configurations
+    """
     NUM_MODELS = [i for i in range(2, max_n_models+1)]
     BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     equal_data_dist = [True, False]
@@ -39,6 +54,15 @@ def experiment_configs(max_n_models, max_bf):
 
     return configurations, config_descriptions
 def experiment_running(n_models, bf):
+    """
+    Runs an experiment for each hyperparameter
+        configuration on Hierarchy_Aggregation.py
+
+    Parameters
+    ----------
+    n_models: int, maximum number of client models to test for
+    bf: int, maximum branching factor to test for
+    """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.0001
     BATCH_SIZE = 32

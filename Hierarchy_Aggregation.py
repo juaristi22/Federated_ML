@@ -20,7 +20,7 @@ import argparse
 import Federated_Model as FM
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-class Client(FM.FashionMNISTModel):
+class Client(FM.CNNModel):
     def __init__(self, input_shape, hidden_units, output_shape,
                  epochs=None, data=None, learning_rate=0.0001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
@@ -85,7 +85,7 @@ class Client(FM.FashionMNISTModel):
     def __str__(self):
         return self.name
 
-class Aggregator(FM.FashionMNISTModel):
+class Aggregator(FM.CNNModel):
     def __init__(self, input_shape, hidden_units, output_shape, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.parent = None
@@ -135,12 +135,42 @@ class Aggregator(FM.FashionMNISTModel):
 
 def initialize_models(
     NUM_MODELS, device=device, epochs=2, lr=0.0001):
-    input_shape = 1
+    input_shape = 3
     hidden_units = 10
-    output_shape = 10
+    output_shape = 100
+    """
+    Initializes all client models keeping track of their names
+    
+    Parameters
+    ----------
+    NUM_MODELS: int, number of client models
+    device: str, device computation will take place on
+    epochs: int, number of epochs each client model will train for
+    lr: float, models' learning rate
+    
+    Returns 
+    -------
+    local_models_list: list[Client instances], list of all client models
+    naming_dict: dict, dictionary of the client models' names and their instances
+    """
 
     # create NUM_MODELS client model instances
     def create_local_models(num_models, input_shape, hidden_units, output_shape):
+        """
+        Instantiates Client model instances
+
+        Parameters
+        ----------
+        num_models: int, number of client models
+        input_shape: int, number of channels in input data
+        hidden_units: int, Client model layers' hidden units
+        output_shape: int, number of labels
+
+        Returns
+        -------
+        clients_list: list[Client objects], list with all client model instances
+        naming_dict: dict, dictionary of all client models' names and their instances
+        """
         clients_list = []
         naming_dict = dict()
         for i in range(num_models):
@@ -195,6 +225,22 @@ def record_experiments(
     height,
     client_results,
     aggregator_results):
+    """
+    Saves configuration and model performance results to json file,
+        and loss curve figures to image
+
+    Parameters
+    ----------
+    model: Client instance
+    num_clients: int, number of client models
+    split_proportions: list[int], list containing the
+        data distribution across client models
+    n_rounds: int, number of rounds for which the federated model runs
+    branching_factor: int, maximum branching factor per node
+    height: int, maximum height of the hierarchy tree
+    client_results: dict, results of the client models
+    aggregator_results, dict, results of each of the aggregator models
+    """
 
     results_dict = {
         "model_name": "HierarchicalBranchingFactor",
@@ -278,9 +324,22 @@ def record_experiments(
 
     FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename)
 
-    return results_json
-
 def run_local_models(model, train_data, test_data, client_results, loss_fn):
+    """
+    Performs training and testing steps on all local models
+
+    Parameters
+    ----------
+    model: Client instance
+    train_data: dataloader instance, training data
+    test_data: dataloader instance, testing data
+    client_results: dict, performance results of client models
+    loss_fn: nn.CrossEntropyLoss instance, loss function
+
+    Returns
+    -------
+    client_results: dict, performance results of all client models
+    """
     train_loss, train_acc = model.train_step(data_loader=train_data, loss_fn=loss_fn,
                                                    optimizer=model.optimizer)
     test_loss, test_acc = model.test_step(data_loader=test_data, loss_fn=loss_fn)
@@ -293,18 +352,71 @@ def run_local_models(model, train_data, test_data, client_results, loss_fn):
     return client_results
 
 def evaluate_aggregator(model, test_data, agg_results, loss_fn):
+    """
+    Performs the testing step on all aggregator models
+
+    Parameters
+    ----------
+    model: Aggregator instance
+    test_data: dataloader instance, testing data
+    agg_results: dict, aggregator performance results
+    loss_fn: nn.CrossEntropyLoss instance, loss function
+
+    Returns
+    -------
+    agg_results: dict, all aggregator performance results
+    """
     test_loss, test_acc = model.test_step(data_loader=test_data, loss_fn=loss_fn)
     agg_results[model.name]["test_loss"].append(test_loss)
     agg_results[model.name]["test_acc"].append(test_acc)
     return agg_results
 
-def compute_bf(n_leafs, height):
-    bf = n_leafs * (1/height)
+def compute_bf(n_leaves, height):
+    """
+    Calculate the maximum branching factor of the hierarchical
+        aggregation based on the desired depth of the tree
+
+    Parameters
+    ----------
+    n_leafs: int, number of leaves in the tree
+        ie. number of client models
+    height: int, desired height of the tree
+
+    Returns
+    -------
+    bf: int, maximum branching factor
+    """
+    bf = n_leaves * (1/height)
     bf = round(bf)
     return bf
 def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportions,
                      local_trainloader, general_testloader,
                      device=device, branch_f=None, height=None):
+
+    """
+    Creates a federated machine learning model hierarchy with intermediate aggregator nodes
+        based on either the desired maximum branching factor or the desired height of the tree
+
+    Parameters
+    ----------
+    local_models_list: list[Client instances], all client instances to include in the hierarchy
+    naming_dict: dict, name of all client nodes' names and their respective instances
+    NUM_ROUNDS: int, number of rounds for which all nodes will run
+    split_proportions: list[int], distribution of training data across client nodes
+    local_trainloader: dataloader instance, training data
+    general_testloader: dataloader instance, testing data
+    device: str, device on which to perform computation
+    branch_f: int, default:None, desired maximum branching factor
+    height: int, default:None, desired height of the tree
+
+    Returns
+    -------
+    client_results: dict, performance results of all client models
+    aggregator_results: dict, performance results of all aggregator models
+    naming_dict: dict, dictionary of all nodes' names and their respective model instances
+    genealogy: list[model instances], list containing all nodes to retrieve their genealogy
+    """
+
     if (branch_f == None) and (height == None):
         raise ValueError("Please choose either a branching factor or "
                          "height hyperparameter to create the aggregation hierarchy")

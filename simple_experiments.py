@@ -17,6 +17,17 @@ import json
 import os
 import argparse
 def run_experiments(learning_rate, n_models, num_experiments):
+    """
+    Runs experiments for the Federated_Model.py
+        script with different hyperparameter configurations
+
+    Parameters
+    ----------
+    learning_rate: float, models' learning rate
+    n_models: int, number of local models to experiment on
+    num_experiments: int, number of experiments to run
+    """
+
     EPOCHS = 2
     ROUNDS = 2
     device = "mps"
@@ -38,7 +49,7 @@ def run_experiments(learning_rate, n_models, num_experiments):
     for local_models in range(1, n_models+1):
         experiment_results = 0
         for i in range(num_experiments):
-            global_model = FM.FashionMNISTModel(input_shape=3, hidden_units=10, output_shape=100).to(device)
+            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=100).to(device)
 
             global_results = FM.federate_model(global_model_instance=global_model,
                                                train_data=train_data,

@@ -31,7 +31,7 @@ class_to_idx = train_data.class_to_idx
 class_to_idx
 
 
-class FashionMNISTModel(nn.Module):
+class CNNModel(nn.Module):
     def __init__(self, input_shape, hidden_units, output_shape):
         super().__init__()
         self.conv_block_1 = nn.Sequential(
@@ -55,7 +55,7 @@ class FashionMNISTModel(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 16 * 16, out_features=output_shape),
+            nn.Linear(in_features=hidden_units * 14 * 14, out_features=output_shape),
         )
 
     def forward(self, x):
@@ -64,12 +64,28 @@ class FashionMNISTModel(nn.Module):
         return x
 
 
-global_model = FashionMNISTModel(input_shape=3, hidden_units=10, output_shape=100).to(
+global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=100).to(
     device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=100).to(device)
 
 def train_step(model, data_loader, loss_fn, optimizer, device):
+    """
+    Performs the training step for the machine learning model
+
+    Parameters
+    ----------
+    model: CNNModel instance
+    data_loader: dataloader object, train data
+    loss_fn: nn.CrossEntropyLoss instance, loss function
+    optimizer: torch,optim,SGD instance, learning optimizer
+    device: str, device in which to train
+
+    Returns
+    -------
+    train_loss: float, average training loss for the dataloader at hand
+    train_acc: float, average training accuracy for the dataloader at hand
+    """
     train_loss, train_acc = 0, 0
     model.train()
     num_steps = 0
@@ -96,8 +112,22 @@ def train_step(model, data_loader, loss_fn, optimizer, device):
 
     return train_loss, train_acc
 
-
 def test_step(model, data_loader, loss_fn, device):
+    """
+    Performs the testing step for the machine learning model
+
+    Parameters
+    ----------
+    model: CNNModel instance
+    data_loader: dataloader object, test data
+    loss_fn: nn.CrossEntropyLoss instance, loss function
+    device: str, device in which to train
+
+    Returns
+    -------
+    test_loss: float, average testing loss for the dataloader at hand
+    test_acc: float, average testing accuracy for the dataloader at hand
+    """
     test_loss, test_acc = 0, 0
     model.eval()
     num_steps = 0
@@ -120,9 +150,27 @@ def test_step(model, data_loader, loss_fn, device):
 
     return test_loss, test_acc
 
+def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, device, epochs):
+    """
+    Runs the training and testing steps for the machine learning model
 
-def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, device, epochs
-):
+    Parameters
+    ----------
+    model: CNNModel instance
+    train_dataloader: dataloader object, train data
+    test_dataloader: dataloader object, test data
+    loss_fn: nn.CrossEntropyLoss instance, loss function
+    optimizer: torch,optim,SGD instance, learning optimizer
+    device: str, device in which to train
+    epochs: int, number of epochs for which to run both steps
+
+    Returns
+    -------
+    train_loss: float, average training loss for the dataloader at hand
+    train_acc: float, average training accuracy for the dataloader at hand
+    test_loss: float, average testing loss for the dataloader at hand
+    test_acc: float, average testing accuracy for the dataloader at hand
+    """
     for epoch in range(epochs):
         # print(f"Epoch: {epoch} \n--------")
 
@@ -143,8 +191,18 @@ def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, devi
 
     return train_loss, train_acc, test_loss, test_acc
 
-
 def average(local_models_params):
+    """
+    Averages the parameters of given models to perform federation
+
+    Parameters
+    ----------
+    local_models_params: list[tensor], parameters of all client models to be averaged
+
+    Returns
+    -------
+    averaged_params: tensor, average of all models' parameters
+    """
     with torch.no_grad():
         averaged_params = local_models_params[0]
         for parameter in averaged_params:
@@ -158,11 +216,22 @@ def average(local_models_params):
                     averaged_params[parameter] = parameter_value
     return averaged_params
 
-
 def print_train_time(start, end, device=None):
+    """
+    Prints the time taken to train the model
+
+    Parameters
+    ----------
+    start: float, starting time
+    end: float, ending time
+    device: str, device in which the training was performed
+
+    Returns
+    -------
+    total_time: float, total time taken to train the model
+    """
     total_time = end - start
     return total_time
-
 
 def record_experiments(
     global_model,
@@ -174,6 +243,22 @@ def record_experiments(
     train_time,
     global_results,
     local_results):
+    """
+    Saves configuration and model performance results to json file
+
+    Parameters
+    ----------
+    global_model: CNNModel instance
+    learning_rate: float, model's learning rate
+    num_local_models: int, number of client models
+    split_proportions: list[int], list containing the
+        data distribution across client models
+    n_rounds: int, number of rounds for which the federated model runs
+    n_epochs: int, number of epochs for which each client model trains
+    train_time: float, total time it took to run the federated model
+    global_results: dict, results of the global model
+    local_results, dict, results of each of the client models
+    """
 
     results_dict = {
         "model_name": global_model.__class__.__name__,
@@ -223,11 +308,17 @@ def record_experiments(
         ),
         "w+",
     ) as f:
-        results_json = json.dump(results_dict, f)
-
-    return results_json
+        json.dump(results_dict, f)
 
 def plot_loss_curves(results, filename=None):
+    """
+    Plots te loss curves of a model's performance
+
+    Parameters
+    ----------
+    results: dict, model's performance results
+    filename: str, default:None, directory path on which to save figures
+    """
     test_accuracy = results["test_acc"]
     test_loss = results["test_loss"]
     if len(results) > 2:
@@ -251,6 +342,7 @@ def plot_loss_curves(results, filename=None):
     plt.legend()
 
     plt.subplot(1, 2, 2)
+    plt.grid()
     if accuracy and len(accuracy) > 0:
         plt.plot(rounds, accuracy, label="train_accuracy", color="blue")
     plt.plot(rounds, test_accuracy, label="test_accuracy", color="orange")
@@ -262,8 +354,22 @@ def plot_loss_curves(results, filename=None):
     else:
         plt.show()
 
-
 def split_data(data, n_splits, batch_size, equal_sizes):
+    """
+    Splits training data either uniformly or randomly across client models
+
+    Parameters
+    ----------
+    data: dataset
+    n_splits: int, number of client models in which data must be split
+    batch_size: int, batch size
+    equal_sizes: bool, whether data should be uniformly distributed or not
+
+    Returns
+    -------
+    data_splits: list[dataloader objects], data that each model will train on
+    split_sizes: list[int], amount of data that each model will train on
+    """
     if equal_sizes:
         split_sizes = [len(data) // n_splits for _ in range(n_splits)]
     else:
@@ -297,6 +403,30 @@ def federate_model(
     EPOCHS,
     device=device
 ):
+    """
+    Builds a global model through federated learning by averaging
+        the parameters of trained client models
+
+    Parameters
+    ----------
+    global_model_instance: CNNModel instance
+    train_data: dataloader object, train data
+    test_data: dataloader object, test data
+    learning_rate: float, model's learning rate
+    equal_sizes: bool, whether data should be
+        uniformly distributed or not
+    NUM_MODELS: int, number of client models
+    NUM_ROUNDS:  int, number of rounds for
+        which the global model is going to run
+    EPOCHS: int, number of epochs for which
+        each client model is going to train
+    device: str, device on which to perform the computation
+
+    Returns
+    -------
+    global_results: dict, results of the global model
+    """
+
     BATCH_SIZE = 32
     loss_fn = nn.CrossEntropyLoss()
 
@@ -322,9 +452,25 @@ def federate_model(
 
     # create NUM_SPLITS local model instances
     def create_local_models(num_models, input_shape, hidden_units, output_shape):
+        """
+        Instantiates the CNNModel to produce the
+            relevant client models and their optimizers
+
+        Parameters
+        ----------
+        num_models: int, number of client models
+        input_shape: int, number of channels in input data
+        hidden_units: int, CNNModel layer's hidden units
+        output_shape: int, number of labels
+
+        Returns
+        -------
+        local_models_dict: dict, dictionary containing each
+            client model instance and its respective optimizer
+        """
         local_models_dict = dict()
         for _ in range(num_models):
-            instance = FashionMNISTModel(
+            instance = CNNModel(
                 input_shape=input_shape,
                 hidden_units=hidden_units,
                 output_shape=output_shape,
@@ -428,7 +574,7 @@ def federate_model(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="Federated TinyVGG Model training on CIFAR10",
+        prog="Federated TinyVGG Model training on CIFAR100",
         description="Runs and experiments on a federated model to explore data "
         "distribution and branching factor among other",
     )
