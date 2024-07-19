@@ -88,36 +88,36 @@ def experiment_running(max_n_models, max_bf):
 
     general_testloader = HA.general_testloader
 
-    #configurations, config_descriptions = experiment_configs(
-                                            #max_n_models=max_n_models,
-                                            #max_bf=max_bf)
-    #for configuration in tqdm(configurations):
-    i = 0
-    logging.info(f"Running experiment on configuration")
-    local_models_list, naming_dict = HA.initialize_models(
-        NUM_MODELS=max_n_models,
-        epochs=EPOCHS,
-        lr=learning_rate)
-    local_trainloader, split_proportions = FM.split_data(
-        data=FM.train_data,
-        n_splits=max_n_models,
-        batch_size=BATCH_SIZE,
-        equal_sizes=True)
+    configurations, config_descriptions = experiment_configs(
+                                            max_n_models=max_n_models,
+                                            max_bf=max_bf)
+    for configuration in tqdm(configurations):
+        i = 0
+        print(f"Running experiment {i} on configuration: {configuration[i]}")
+        local_models_list, naming_dict = HA.initialize_models(
+            NUM_MODELS=max_n_models,
+            epochs=EPOCHS,
+            lr=learning_rate)
+        local_trainloader, split_proportions = FM.split_data(
+            data=FM.train_data,
+            n_splits=max_n_models,
+            batch_size=BATCH_SIZE,
+            equal_sizes=True)
 
-    client_results, aggregator_results, naming_dict, genealogy, filename = HA.create_hierarchy(
-                        local_models_list=local_models_list,
-                        naming_dict=naming_dict,
-                        local_trainloader=local_trainloader,
-                        general_testloader=general_testloader,
-                        NUM_ROUNDS=ROUNDS,
-                        height=None,
-                        split_proportions=split_proportions,
-                        device=device,
-                        branch_f=max_bf,
-                        experiment_config=None)
-    i += 1
+        client_results, aggregator_results, naming_dict, genealogy, filename = HA.create_hierarchy(
+                            local_models_list=local_models_list,
+                            naming_dict=naming_dict,
+                            local_trainloader=local_trainloader,
+                            general_testloader=general_testloader,
+                            NUM_ROUNDS=ROUNDS,
+                            height=None,
+                            split_proportions=split_proportions,
+                            device=device,
+                            branch_f=max_bf,
+                            experiment_config=None)
+        i += 1
 
-    return filename
+        return filename
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
-    # experiment_running(max_n_models=32, max_bf=10)
+    #experiment_running(max_n_models=32, max_bf=10)
     filename = experiment_running(n_models=max_n_models, bf=max_bf)
-    logger_setup(filename)
+    #logger_setup(filename)
 

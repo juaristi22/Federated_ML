@@ -33,13 +33,13 @@ def run_experiments(learning_rate, n_models, num_experiments):
     ROUNDS = 2
     device = "mps"
 
-    train_data = datasets.CIFAR100(
+    train_data = datasets.CIFAR10(
         root="data",
         train=True,
         download=True,
         transform=ToTensor())
 
-    test_data = datasets.CIFAR100(
+    test_data = datasets.CIFAR10(
         root="data",
         train=False,
         download=True,
@@ -50,7 +50,7 @@ def run_experiments(learning_rate, n_models, num_experiments):
     for local_models in range(1, n_models+1):
         experiment_results = 0
         for i in range(num_experiments):
-            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=100).to(device)
+            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
 
             global_results = FM.federate_model(global_model_instance=global_model,
                                                train_data=train_data,
@@ -86,7 +86,7 @@ def run_experiments(learning_rate, n_models, num_experiments):
     for local_models in range(1, n_models+1):
         experiment_results = 0
         for i in range(num_experiments):
-            global_model = FM.FashionMNISTGlobal(input_shape=3, hidden_units=10, output_shape=100).to(device)
+            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
 
             global_results = FM.federate_model(global_model_instance=global_model,
                                                train_data=train_data,
@@ -120,6 +120,6 @@ def run_experiments(learning_rate, n_models, num_experiments):
         results_dict[f"random data dist, {local_models} clients"] = experiment_results
 
         #FM.plot_loss_curves(experiment_results)
-    logging.info(results_dict)
+    print(results_dict)
 
 run_experiments(learning_rate=0.0001, n_models=2, num_experiments=2)

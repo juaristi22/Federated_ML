@@ -56,7 +56,7 @@ class Client(FM.CNNModel):
             train_acc /= num_steps
             train_acc *= 100
 
-        # logging.info(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
+        # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
 
         return train_loss, train_acc
 
@@ -78,7 +78,7 @@ class Client(FM.CNNModel):
             test_acc /= num_steps
             test_acc *= 100
 
-        logging.info(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
+        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
 
         return test_loss, test_acc
     def named(self, n):
@@ -113,7 +113,7 @@ class Aggregator(FM.CNNModel):
             test_acc /= num_steps
             test_acc *= 100
 
-        logging.info(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
+        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
 
         return test_loss, test_acc
 
@@ -138,7 +138,7 @@ def initialize_models(
     NUM_MODELS, device=device, epochs=2, lr=0.0001):
     input_shape = 3
     hidden_units = 10
-    output_shape = 100
+    output_shape = 10
     """
     Initializes all client models keeping track of their names
     
@@ -451,7 +451,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     random.shuffle(local_models_list)
 
     for round in range(NUM_ROUNDS):
-        logging.info(f"Round: {round}:")
+        print(f"Round: {round}:")
         client_models = copy.copy(local_models_list)
         aggregators = []
         iteration = 0
@@ -465,7 +465,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     client = client_models.pop(0)
 
                     #train and test client models
-                    logging.info(f"\nTraining client model: {client.name} \n--------------")
+                    print(f"\nTraining client model: {client.name} \n--------------")
                     client_results = run_local_models(model=client,
                                                     train_data=local_trainloader[model_num],
                                                     test_data=general_testloader,
@@ -476,7 +476,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
 
                 if round == 0:
                     #create an aggregator for the trained models
-                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
+                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -505,7 +505,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     client = client_models.pop(0)
 
                     #train and test client model
-                    logging.info(f"Training client model: {client.name} \n--------------")
+                    print(f"Training client model: {client.name} \n--------------")
                     client_results = run_local_models(model=client,
                                                       train_data=local_trainloader[model_num],
                                                       test_data=general_testloader,
@@ -515,7 +515,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     model_num += 1
 
                 if round == 0:
-                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
+                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -539,7 +539,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     agg.load_state_dict(trained_models[0].state_dict())
                 aggregators.append(agg)
 
-        logging.info("\nCreating aggregator hierarchies \n-----------")
+        print("\nCreating aggregator hierarchies \n-----------")
         while aggregators:
             if len(aggregators) > (branch_f - 1):
                 tested_aggs = []
@@ -556,7 +556,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     tested_aggs.append(agg)
 
                 if round == 0:
-                    new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
+                    new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
                     new_agg.named(iteration)
                     naming_dict[new_agg.name] = new_agg
                     aggregator_results[new_agg.name] = copy.deepcopy(results)
@@ -594,7 +594,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                         tested_aggs.append(agg)
 
                     if round == 0:
-                        new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=100).to(device)
+                        new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
                         new_agg.named(iteration)
                         naming_dict[new_agg.name] = new_agg
                         aggregator_results[new_agg.name] = copy.deepcopy(results)
@@ -634,7 +634,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     naming_dict[global_model.name] = global_model
 
     for i in genealogy:
-        logging.info(f"{i.name}´s children: {i.children_nodes}")
+        print(f"{i.name}´s children: {i.children_nodes}")
 
     filename = record_experiments(
         model=client,
