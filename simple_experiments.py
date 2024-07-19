@@ -31,7 +31,7 @@ def run_experiments(learning_rate, n_models, num_experiments):
 
     EPOCHS = 2
     ROUNDS = 2
-    device = "mps"
+    device = "gpu"
 
     train_data = datasets.CIFAR10(
         root="data",

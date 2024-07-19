@@ -80,7 +80,7 @@ def experiment_running(max_n_models, max_bf):
     n_models: int, maximum number of client models to test for
     bf: int, maximum branching factor to test for
     """
-    device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
+    device = torch.device('gpu' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.0001
     BATCH_SIZE = 32
     EPOCHS = 5
@@ -117,7 +117,7 @@ def experiment_running(max_n_models, max_bf):
                             experiment_config=config_descriptions[i])
         i += 1
 
-        return filename
+    return filename
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
