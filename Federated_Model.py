@@ -332,6 +332,8 @@ def plot_loss_curves(results, config, filename=None):
     rounds = range(len(results["test_loss"]))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 7))
+    ax1.grid()
+    ax2.grid()
     if config:
         fig.suptitle(config)
 
@@ -341,7 +343,7 @@ def plot_loss_curves(results, config, filename=None):
     ax1.set_title("Loss")
     ax1.set_xlabel("Rounds")
     ax1.legend()
-    ax1.grid()
+
 
     if accuracy and len(accuracy) > 0:
         ax2.plot(rounds, accuracy, label="train_accuracy", color="blue")
