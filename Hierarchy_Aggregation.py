@@ -325,7 +325,7 @@ def record_experiments(
             + ".png",
         )
 
-    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename)
+    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
 
 def run_local_models(model, train_data, test_data, client_results, loss_fn):
     """

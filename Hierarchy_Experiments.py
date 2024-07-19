@@ -47,9 +47,6 @@ def experiment_configs(max_n_models, max_bf):
             for data_dist in equal_data_dist:
                 if n_models >= bf:
                     configs_dict = {}
-                    print(n_models)
-                    print(bf)
-                    print(data_dist)
                     configs_dict["n_models"] = n_models
                     configs_dict["bf"] = bf
                     configs_dict["data_dist"] = data_dist

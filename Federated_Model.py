@@ -310,7 +310,7 @@ def record_experiments(
     ) as f:
         json.dump(results_dict, f)
 
-def plot_loss_curves(results, filename=None):
+def plot_loss_curves(results, filename=None, config):
     """
     Plots te loss curves of a model's performance
 
@@ -331,6 +331,8 @@ def plot_loss_curves(results, filename=None):
     rounds = range(len(results["test_loss"]))
 
     plt.figure(figsize=(15, 7))
+    if config:
+        plt.title(config)
     plt.subplot(1, 2, 1)
     plt.grid()
 
