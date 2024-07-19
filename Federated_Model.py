@@ -338,16 +338,16 @@ def plot_loss_curves(results, config, filename=None):
     if loss and len(loss) > 0:
         ax1.plot(rounds, loss, label="train_loss", color="blue")
     ax1.plot(rounds, test_loss, label="test_loss", color="orange")
-    ax1.title("Loss")
-    ax1.xlabel("Rounds")
+    ax1.set_title("Loss")
+    ax1.set_xlabel("Rounds")
     ax1.legend()
     ax1.grid()
 
     if accuracy and len(accuracy) > 0:
         ax2.plot(rounds, accuracy, label="train_accuracy", color="blue")
     ax2.plot(rounds, test_accuracy, label="test_accuracy", color="orange")
-    ax2.title("Accuracy")
-    ax2.xlabel("Rounds")
+    ax2.set_title("Accuracy")
+    ax2.set_xlabel("Rounds")
     ax2.legend()
     if filename:
         plt.savefig(fname=filename)
