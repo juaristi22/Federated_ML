@@ -67,8 +67,8 @@ def experiment_running(max_n_models, max_bf):
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.0001
     BATCH_SIZE = 32
-    EPOCHS = 3
-    ROUNDS = 20
+    EPOCHS = 10
+    ROUNDS = 15
 
     general_testloader = HA.general_testloader
 
@@ -121,4 +121,4 @@ if __name__ == "__main__":
     #max_bf = args["max_bf"]
 
     #experiment_running(n_models=max_n_models, bf=max_bf)
-    experiment_running(max_n_models=64, max_bf=10)
+    experiment_running(max_n_models=32, max_bf=10)
