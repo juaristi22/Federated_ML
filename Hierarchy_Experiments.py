@@ -84,14 +84,13 @@ def experiment_running(max_n_models, max_bf):
     learning_rate = 0.0001
     BATCH_SIZE = 32
     EPOCHS = 5
-    ROUNDS = 15
+    ROUNDS = 10
 
     general_testloader = HA.general_testloader
 
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
                                             max_bf=max_bf)
-    print(configurations)
     for configuration in tqdm(configurations):
         i = 0
         print(f"Running experiment {i} on configuration: {configurations[i]}")
