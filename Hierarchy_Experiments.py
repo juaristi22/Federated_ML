@@ -44,12 +44,12 @@ def experiment_configs(max_n_models, max_bf):
     print(BRANCHING_FACTOR)
     print(equal_data_dist)
 
-    configs_dict = {}
     configurations = []
     config_descriptions = []
     for n_models in NUM_MODELS:
         for bf in BRANCHING_FACTOR:
             for data_dist in equal_data_dist:
+                configs_dict = {}
                 print(n_models)
                 print(bf)
                 print(data_dist)
