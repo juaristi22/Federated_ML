@@ -60,7 +60,6 @@ class CNNModel(nn.Module):
 
     def forward(self, x):
         x = self.conv_block_1(x)
-        print(x.shape)
         x = self.classifier(x)
         return x
 
