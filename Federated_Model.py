@@ -331,7 +331,7 @@ def plot_loss_curves(results, config, filename=None):
 
     rounds = range(len(results["test_loss"]))
 
-    plt.figure(figsize=(15, 7))
+    plt.figure(figsize=(15, 7), sharex=False)
     if config:
         plt.title(config)
     plt.subplot(1, 2, 1)
