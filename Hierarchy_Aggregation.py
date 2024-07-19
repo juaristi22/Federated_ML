@@ -18,6 +18,7 @@ import json
 import os
 import argparse
 import Federated_Model as FM
+import logging
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 class Client(FM.CNNModel):
@@ -55,7 +56,7 @@ class Client(FM.CNNModel):
             train_acc /= num_steps
             train_acc *= 100
 
-        # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
+        # logging.info(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
 
         return train_loss, train_acc
 
@@ -77,7 +78,7 @@ class Client(FM.CNNModel):
             test_acc /= num_steps
             test_acc *= 100
 
-        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
+        logging.info(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
 
         return test_loss, test_acc
     def named(self, n):
@@ -112,7 +113,7 @@ class Aggregator(FM.CNNModel):
             test_acc /= num_steps
             test_acc *= 100
 
-        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
+        logging.info(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
 
         return test_loss, test_acc
 
@@ -242,6 +243,10 @@ def record_experiments(
     client_results: dict, results of the client models
     aggregator_results, dict, results of each of the aggregator models
     experiment_config: st, default:None, configuration of the current experiment run if any
+
+    Returns
+    -------
+    filename: str, directory of the saved results
     """
 
     results_dict = {
@@ -326,6 +331,8 @@ def record_experiments(
         )
 
     FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
+
+    return filename
 
 def run_local_models(model, train_data, test_data, client_results, loss_fn):
     """
@@ -419,6 +426,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     aggregator_results: dict, performance results of all aggregator models
     naming_dict: dict, dictionary of all nodes' names and their respective model instances
     genealogy: list[model instances], list containing all nodes to retrieve their genealogy
+    filename: str, directory of the saved results
     """
 
     if (branch_f == None) and (height == None):
@@ -443,7 +451,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     random.shuffle(local_models_list)
 
     for round in range(NUM_ROUNDS):
-        print(f"Round: {round}:")
+        logging.info(f"Round: {round}:")
         client_models = copy.copy(local_models_list)
         aggregators = []
         iteration = 0
@@ -457,7 +465,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     client = client_models.pop(0)
 
                     #train and test client models
-                    print(f"\nTraining client model: {client.name} \n--------------")
+                    logging.info(f"\nTraining client model: {client.name} \n--------------")
                     client_results = run_local_models(model=client,
                                                     train_data=local_trainloader[model_num],
                                                     test_data=general_testloader,
@@ -497,7 +505,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     client = client_models.pop(0)
 
                     #train and test client model
-                    print(f"Training client model: {client.name} \n--------------")
+                    logging.info(f"Training client model: {client.name} \n--------------")
                     client_results = run_local_models(model=client,
                                                       train_data=local_trainloader[model_num],
                                                       test_data=general_testloader,
@@ -531,7 +539,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     agg.load_state_dict(trained_models[0].state_dict())
                 aggregators.append(agg)
 
-        print("\nCreating aggregator hierarchies \n-----------")
+        logging.info("\nCreating aggregator hierarchies \n-----------")
         while aggregators:
             if len(aggregators) > (branch_f - 1):
                 tested_aggs = []
@@ -626,9 +634,9 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     naming_dict[global_model.name] = global_model
 
     for i in genealogy:
-        print(f"{i.name}´s children: {i.children_nodes}")
+        logging.info(f"{i.name}´s children: {i.children_nodes}")
 
-    record_experiments(
+    filename = record_experiments(
         model=client,
         num_clients=NUM_MODELS,
         split_proportions=split_proportions,
@@ -639,10 +647,10 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
         aggregator_results=aggregator_results,
         experiment_config=experiment_config)
 
-    return client_results, aggregator_results, naming_dict, genealogy
+    return client_results, aggregator_results, naming_dict, genealogy, filename
 
 if __name__ == "__main__":
-    client_results, aggregator_results, naming_dict, genealogy = create_hierarchy(local_models_list,
+    client_results, aggregator_results, naming_dict, genealogy, filename = create_hierarchy(local_models_list,
                                                                        split_proportions=split_proportions,
                                                                        local_trainloader=local_trainloader,
                                                                        general_testloader=general_testloader,

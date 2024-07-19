@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import json
 import os
 import argparse
+import logging
 def run_experiments(learning_rate, n_models, num_experiments):
     """
     Runs experiments for the Federated_Model.py
@@ -119,6 +120,6 @@ def run_experiments(learning_rate, n_models, num_experiments):
         results_dict[f"random data dist, {local_models} clients"] = experiment_results
 
         #FM.plot_loss_curves(experiment_results)
-    print(results_dict)
+    logging.info(results_dict)
 
 run_experiments(learning_rate=0.0001, n_models=2, num_experiments=2)

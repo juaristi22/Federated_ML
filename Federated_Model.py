@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import json
 import os
 import argparse
+import logging
 
 train_data = datasets.CIFAR100(
     root="data", train=True, download=True, transform=ToTensor())
@@ -94,7 +95,7 @@ def train_step(model, data_loader, loss_fn, optimizer, device):
         X, y = X.to(device), y.to(device)
         y_pred = model(X)
         loss = loss_fn(y_pred, y)
-        #print(f"train loss: {loss}")
+        #logging.info(f"train loss: {loss}")
         train_loss += loss.item()
         train_acc += accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
 
@@ -108,7 +109,7 @@ def train_step(model, data_loader, loss_fn, optimizer, device):
     train_acc /= num_steps
     train_acc *= 100
 
-    # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
+    # logging.info(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
 
     return train_loss, train_acc
 
@@ -137,7 +138,7 @@ def test_step(model, data_loader, loss_fn, device):
             X, y = X.to(device), y.to(device)
             test_pred = model(X)
             loss = loss_fn(test_pred, y)
-            # print(f"test loss: {loss}")
+            # logging.info(f"test loss: {loss}")
             test_loss += loss.item()
             test_acc += accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
             num_steps += 1
@@ -146,7 +147,7 @@ def test_step(model, data_loader, loss_fn, device):
         test_acc /= num_steps
         test_acc *= 100
 
-    print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
+    logging.info(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
 
     return test_loss, test_acc
 
@@ -172,7 +173,7 @@ def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, devi
     test_acc: float, average testing accuracy for the dataloader at hand
     """
     for epoch in range(epochs):
-        # print(f"Epoch: {epoch} \n--------")
+        # logging.info(f"Epoch: {epoch} \n--------")
 
         train_loss, train_acc = train_step(
             model=model,
@@ -503,13 +504,13 @@ def federate_model(
     time_start = timer()
 
     for round in range(NUM_ROUNDS):
-        print(f"Round: {round}\n--------")
+        logging.info(f"Round: {round}\n--------")
         models_params = dict()
 
         # train each of the local models
         iteration = 0
         for client, client_params in local_models_dict.items():
-            print("\nTraining client model \n-------------")
+            logging.info("\nTraining client model \n-------------")
 
             train_loss, train_acc, test_loss, test_acc = run_model(
                 model=client,
@@ -535,7 +536,7 @@ def federate_model(
         # test the global model with the averaged parameters
         global_model_instance.load_state_dict(global_params)
 
-        print("\nTesting global model \n----------------")
+        logging.info("\nTesting global model \n----------------")
 
         test_loss, test_acc = test_step(
             model=global_model_instance,
@@ -552,7 +553,7 @@ def federate_model(
             client.load_state_dict(global_params)
 
     time_end = timer()
-    total_time = print_train_time(start=time_start, end=time_end, device=device)
+    total_time = logging.info_train_time(start=time_start, end=time_end, device=device)
 
     record_experiments(
         global_model=global_model_instance,
@@ -566,10 +567,10 @@ def federate_model(
         local_results=local_results,
     )
 
-    # print("Local model results:")
+    # logging.info("Local model results:")
     for client, results in local_results.items():
         plot_loss_curves(results)
-    # print("Global model results:")
+    # logging.info("Global model results:")
     plot_loss_curves(global_results)
 
     return global_results

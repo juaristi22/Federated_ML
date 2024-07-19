@@ -19,6 +19,22 @@ import os
 import argparse
 import Federated_Model as FM
 import Hierarchy_Aggregation as HA
+import logging
+
+def logger_setup(filename):
+    # Set up logging
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    log_filename = os.path.join(filename, "FL_test_out.txt")
+    file_handler = logging.FileHandler(log_filename)
+    stream_handler = logging.StreamHandler(sys.stdout)
+
+    # log format
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    file_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
 def experiment_configs(max_n_models, max_bf):
     """
@@ -77,7 +93,7 @@ def experiment_running(max_n_models, max_bf):
                                             #max_bf=max_bf)
     #for configuration in tqdm(configurations):
     i = 0
-    print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
+    logging.info(f"Running experiment on configuration")
     local_models_list, naming_dict = HA.initialize_models(
         NUM_MODELS=max_n_models,
         epochs=EPOCHS,
@@ -88,7 +104,8 @@ def experiment_running(max_n_models, max_bf):
         batch_size=BATCH_SIZE,
         equal_sizes=True)
 
-    HA.create_hierarchy(local_models_list=local_models_list,
+    client_results, aggregator_results, naming_dict, genealogy, filename = HA.create_hierarchy(
+                        local_models_list=local_models_list,
                         naming_dict=naming_dict,
                         local_trainloader=local_trainloader,
                         general_testloader=general_testloader,
@@ -97,8 +114,10 @@ def experiment_running(max_n_models, max_bf):
                         split_proportions=split_proportions,
                         device=device,
                         branch_f=max_bf,
-                        experiment_config=configuration)
+                        experiment_config=None)
     i += 1
+
+    return filename
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -119,6 +138,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
+    # experiment_running(max_n_models=32, max_bf=10)
+    filename = experiment_running(n_models=max_n_models, bf=max_bf)
+    logger_setup(filename)
 
-    experiment_running(n_models=max_n_models, bf=max_bf)
-    #experiment_running(max_n_models=32, max_bf=10)
