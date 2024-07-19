@@ -25,7 +25,7 @@ train_data = datasets.CIFAR10(
 test_data = datasets.CIFAR10(
     root="data", train=False, download=True, transform=ToTensor())
 
-device = torch.device('gpu' if torch.cuda.is_available() else 'mps')
+device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 
 class_names = train_data.classes
 class_to_idx = train_data.class_to_idx

@@ -20,7 +20,7 @@ import argparse
 import Federated_Model as FM
 import logging
 
-device = torch.device('gpu' if torch.cuda.is_available() else 'mps')
+device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 class Client(FM.CNNModel):
     def __init__(self, input_shape, hidden_units, output_shape,
                  epochs=None, data=None, learning_rate=0.0001, device=device):
