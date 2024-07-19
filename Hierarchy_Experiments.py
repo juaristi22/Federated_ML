@@ -53,7 +53,7 @@ def experiment_configs(max_n_models, max_bf):
                 config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{data_dist}")
 
     return configurations, config_descriptions
-def experiment_running(n_models, bf):
+def experiment_running(max_n_models, max_bf):
     """
     Runs an experiment for each hyperparameter
         configuration on Hierarchy_Aggregation.py
@@ -72,8 +72,8 @@ def experiment_running(n_models, bf):
     general_testloader = HA.general_testloader
 
     configurations, config_descriptions = experiment_configs(
-                                            max_n_models=n_models,
-                                            max_bf=bf)
+                                            max_n_models=max_n_models,
+                                            max_bf=max_bf)
     for configuration in tqdm(configurations):
         i = 0
         print(f"Running experiment on configuration")
