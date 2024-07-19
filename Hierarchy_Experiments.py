@@ -79,14 +79,14 @@ def experiment_running(max_n_models, max_bf):
     i = 0
     print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
     local_models_list, naming_dict = HA.initialize_models(
-        NUM_MODELS=configuration["n_models"],
+        NUM_MODELS=max_n_models,
         epochs=EPOCHS,
         lr=learning_rate)
     local_trainloader, split_proportions = FM.split_data(
         data=FM.train_data,
-        n_splits=configuration["n_models"],
+        n_splits=max_n_models,
         batch_size=BATCH_SIZE,
-        equal_sizes=configuration["data_dist"])
+        equal_sizes=True)
 
     HA.create_hierarchy(local_models_list=local_models_list,
                         naming_dict=naming_dict,
@@ -96,7 +96,7 @@ def experiment_running(max_n_models, max_bf):
                         height=None,
                         split_proportions=split_proportions,
                         device=device,
-                        branch_f=configuration["bf"],
+                        branch_f=max_bf,
                         experiment_config=configuration)
     i += 1
 
