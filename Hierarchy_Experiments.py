@@ -50,6 +50,9 @@ def experiment_configs(max_n_models, max_bf):
     for n_models in NUM_MODELS:
         for bf in BRANCHING_FACTOR:
             for data_dist in equal_data_dist:
+                print(n_models)
+                print(bf)
+                print(data_dist)
                 configs_dict["n_models"] = n_models
                 configs_dict["bf"] = bf
                 configs_dict["data_dist"] = data_dist
