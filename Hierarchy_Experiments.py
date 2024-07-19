@@ -44,14 +44,14 @@ def experiment_configs(max_n_models, max_bf):
     config_descriptions = []
     for bf in BRANCHING_FACTOR:
         for n_models in NUM_MODELS:
-            for data_dist in equal_data_dist:
-                if n_models >= bf:
-                    configs_dict = {}
-                    configs_dict["n_models"] = n_models
-                    configs_dict["bf"] = bf
-                    configs_dict["data_dist"] = data_dist
-                    configurations.append(configs_dict)
-                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{data_dist}")
+            #for data_dist in equal_data_dist:
+            if n_models >= bf:
+                configs_dict = {}
+                configs_dict["n_models"] = n_models
+                configs_dict["bf"] = bf
+                configs_dict["data_dist"] = True
+                configurations.append(configs_dict)
+                config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{data_dist}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf):
