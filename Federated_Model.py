@@ -55,11 +55,12 @@ class CNNModel(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 14 * 14, out_features=output_shape),
+            nn.Linear(in_features=hidden_units * 16 * 16, out_features=output_shape),
         )
 
     def forward(self, x):
         x = self.conv_block_1(x)
+        print(x.shape)
         x = self.classifier(x)
         return x
 
