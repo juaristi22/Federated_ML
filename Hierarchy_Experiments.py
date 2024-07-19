@@ -74,10 +74,12 @@ def experiment_running(max_n_models, max_bf):
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
                                             max_bf=max_bf)
+    print(configurations)
     for configuration in tqdm(configurations):
         i = 0
         print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
         print(configuration)
+        print(configuration["n_models"], type(configuration["n_models"]))
         local_models_list, naming_dict = HA.initialize_models(
             NUM_MODELS=configuration["n_models"],
             epochs=EPOCHS,
