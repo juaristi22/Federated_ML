@@ -257,13 +257,13 @@ def record_experiments(
     experiment = 0
 
     current_directory = os.getcwd()
-    final_directory = os.path.join(current_directory, r'Hierarchy_results')
+    final_directory = os.path.join("/home/juaristi", r'Hierarchy_results')
     if not os.path.exists(final_directory):
         os.makedirs(final_directory)
 
     while os.path.exists(
         os.path.join(
-            os.getcwd(),
+            "/home/juaristi",
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
@@ -284,7 +284,7 @@ def record_experiments(
 
     with open(
         os.path.join(
-            os.getcwd(),
+            /"home/juaristi",
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
@@ -305,7 +305,7 @@ def record_experiments(
         results_json = json.dump(results_dict, f)
 
     filename = os.path.join(
-            os.getcwd(),
+            "/home/juaristi",
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"

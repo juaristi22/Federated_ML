@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Federated_ML.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Federated_ML.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Federated_Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Hierarchy_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Hierarchy_Aggregation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Hierarchy_Experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Hierarchy_Experiments.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/simple_experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/simple_experiments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/submit-script.txt" beforeDir="false" afterPath="$PROJECT_DIR$/submit-script.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,17 +33,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Federated_Model.executor": "Run",
-    "Python.Hierarchy_Aggregation.executor": "Run",
-    "Python.Hierarchy_Experiments.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/movil1/Documents/GitHub/Federated_ML"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Federated_Model.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Hierarchy_Aggregation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Hierarchy_Experiments.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/movil1/Documents/GitHub/Federated_ML&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

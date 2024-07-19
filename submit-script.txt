@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=240G 
 #SBATCH --export=ALL
-#SBATCH -t 00:30:00
+#SBATCH -t 00:50:00
 
 export NODES=$SLURM_JOB_NUM_NODES
 module load anaconda3/2021.05FL_
