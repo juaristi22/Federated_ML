@@ -95,12 +95,12 @@ def experiment_running(max_n_models, max_bf):
         i = 0
         print(f"Running experiment {i} on configuration: {configuration[i]}")
         local_models_list, naming_dict = HA.initialize_models(
-            NUM_MODELS=max_n_models,
+            NUM_MODELS=configuration["n_models"],
             epochs=EPOCHS,
             lr=learning_rate)
         local_trainloader, split_proportions = FM.split_data(
             data=FM.train_data,
-            n_splits=max_n_models,
+            n_splits=configuration["n_models"],
             batch_size=BATCH_SIZE,
             equal_sizes=True)
 
@@ -113,8 +113,8 @@ def experiment_running(max_n_models, max_bf):
                             height=None,
                             split_proportions=split_proportions,
                             device=device,
-                            branch_f=max_bf,
-                            experiment_config=None)
+                            branch_f=configuration["bf"],
+                            experiment_config=config_descriptions[i])
         i += 1
 
         return filename
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
-    #experiment_running(max_n_models=32, max_bf=10)
-    filename = experiment_running(n_models=max_n_models, bf=max_bf)
+    experiment_running(max_n_models=32, max_bf=10)
+    #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
