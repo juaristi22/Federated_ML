@@ -40,6 +40,10 @@ def experiment_configs(max_n_models, max_bf):
     BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     equal_data_dist = [True, False]
 
+    print(NUM_MODELS)
+    print(BRANCHING_FACTOR)
+    print(equal_data_dist)
+
     configs_dict = {}
     configurations = []
     config_descriptions = []
@@ -123,4 +127,4 @@ if __name__ == "__main__":
     #max_bf = args["max_bf"]
 
     #experiment_running(n_models=max_n_models, bf=max_bf)
-    experiment_running(max_n_models=128, max_bf=10)
+    experiment_running(max_n_models=64, max_bf=10)
