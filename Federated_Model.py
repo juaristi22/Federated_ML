@@ -310,7 +310,7 @@ def record_experiments(
     ) as f:
         json.dump(results_dict, f)
 
-def plot_loss_curves(results, filename=None, config):
+def plot_loss_curves(results, config, filename=None):
     """
     Plots te loss curves of a model's performance
 
