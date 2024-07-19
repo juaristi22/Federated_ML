@@ -331,27 +331,24 @@ def plot_loss_curves(results, config, filename=None):
 
     rounds = range(len(results["test_loss"]))
 
-    plt.figure(figsize=(15, 7), sharex=False)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 7))
     if config:
-        plt.title(config)
-    plt.subplot(1, 2, 1)
-    plt.grid()
+        fig.suptitle(config)
 
     if loss and len(loss) > 0:
-        plt.plot(rounds, loss, label="train_loss", color="blue")
-    plt.plot(rounds, test_loss, label="test_loss", color="orange")
-    plt.title("Loss")
-    plt.xlabel("Rounds")
-    plt.legend()
+        ax1.plot(rounds, loss, label="train_loss", color="blue")
+    ax1.plot(rounds, test_loss, label="test_loss", color="orange")
+    ax1.title("Loss")
+    ax1.xlabel("Rounds")
+    ax1.legend()
+    ax1.grid()
 
-    plt.subplot(1, 2, 2)
-    plt.grid()
     if accuracy and len(accuracy) > 0:
-        plt.plot(rounds, accuracy, label="train_accuracy", color="blue")
-    plt.plot(rounds, test_accuracy, label="test_accuracy", color="orange")
-    plt.title("Accuracy")
-    plt.xlabel("Rounds")
-    plt.legend()
+        ax2.plot(rounds, accuracy, label="train_accuracy", color="blue")
+    ax2.plot(rounds, test_accuracy, label="test_accuracy", color="orange")
+    ax2.title("Accuracy")
+    ax2.xlabel("Rounds")
+    ax2.legend()
     if filename:
         plt.savefig(fname=filename)
     else:
@@ -430,7 +427,7 @@ def federate_model(
     global_results: dict, results of the global model
     """
 
-    BATCH_SIZE = 32
+    BATCH_SIZE = max([256,len(samples)])
     loss_fn = nn.CrossEntropyLoss()
 
     input_shape = 3
