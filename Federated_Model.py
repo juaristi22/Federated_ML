@@ -427,7 +427,7 @@ def federate_model(
     global_results: dict, results of the global model
     """
 
-    BATCH_SIZE = max([256,len(samples)])
+    BATCH_SIZE = 256
     loss_fn = nn.CrossEntropyLoss()
 
     input_shape = 3

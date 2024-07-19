@@ -82,7 +82,7 @@ def experiment_running(max_n_models, max_bf):
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.0001
-    BATCH_SIZE = max([256,len(samples)])
+    BATCH_SIZE = 256
     EPOCHS = 5
     ROUNDS = 10
 
