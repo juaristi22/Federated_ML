@@ -71,32 +71,33 @@ def experiment_running(n_models, bf):
 
     general_testloader = HA.general_testloader
 
-    #configurations, config_descriptions = experiment_configs(
-                                            #max_n_models=max_n_models,
-                                            #max_bf=max_bf)
-    #for configuration in configurations:
-    i = 0
-    print(f"Running experiment on configuration")
-    local_models_list, naming_dict = HA.initialize_models(
-        NUM_MODELS=n_models,
-        epochs=EPOCHS,
-        lr=learning_rate)
-    local_trainloader, split_proportions = FM.split_data(
-        data=FM.train_data,
-        n_splits=n_models,
-        batch_size=BATCH_SIZE,
-        equal_sizes=True)
+    configurations, config_descriptions = experiment_configs(
+                                            max_n_models=n_models,
+                                            max_bf=bf)
+    for configuration in tqdm(configurations):
+        i = 0
+        print(f"Running experiment on configuration")
+        local_models_list, naming_dict = HA.initialize_models(
+            NUM_MODELS=configuration["n_models"],
+            epochs=EPOCHS,
+            lr=learning_rate)
+        local_trainloader, split_proportions = FM.split_data(
+            data=FM.train_data,
+            n_splits=configuration["n_models"],
+            batch_size=BATCH_SIZE,
+            equal_sizes=configuration["data_dist"])
 
-    HA.create_hierarchy(local_models_list=local_models_list,
-                        naming_dict=naming_dict,
-                        local_trainloader=local_trainloader,
-                        general_testloader=general_testloader,
-                        NUM_ROUNDS=ROUNDS,
-                        height=None,
-                        split_proportions=split_proportions,
-                        device=device,
-                        branch_f=bf)
-    i += 1
+        HA.create_hierarchy(local_models_list=local_models_list,
+                            naming_dict=naming_dict,
+                            local_trainloader=local_trainloader,
+                            general_testloader=general_testloader,
+                            NUM_ROUNDS=ROUNDS,
+                            height=None,
+                            split_proportions=split_proportions,
+                            device=device,
+                            branch_f=configuration["bf"],
+                            experiment_config=configuration)
+        i += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -115,8 +116,8 @@ if __name__ == "__main__":
     )
 
     args = vars(parser.parse_args())
-    max_n_models = args["max_n_models"]
-    max_bf = args["max_bf"]
+    #max_n_models = args["max_n_models"]
+    #max_bf = args["max_bf"]
 
-    experiment_running(n_models=max_n_models, bf=max_bf)
-    #experiment_running(max_n_models=3, max_bf=3)
+    #experiment_running(n_models=max_n_models, bf=max_bf)
+    experiment_running(max_n_models=128, max_bf=10)

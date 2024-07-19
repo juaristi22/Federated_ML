@@ -224,7 +224,8 @@ def record_experiments(
     branching_factor,
     height,
     client_results,
-    aggregator_results):
+    aggregator_results,
+    experiment_config=None):
     """
     Saves configuration and model performance results to json file,
         and loss curve figures to image
@@ -240,6 +241,7 @@ def record_experiments(
     height: int, maximum height of the hierarchy tree
     client_results: dict, results of the client models
     aggregator_results, dict, results of each of the aggregator models
+    experiment_config: st, default:None, configuration of the current experiment run if any
     """
 
     results_dict = {
@@ -252,18 +254,19 @@ def record_experiments(
         "height": height,
         "client_results": client_results,
         "aggregator_results": aggregator_results,
+        "experiment_config": experiment_config
     }
 
     experiment = 0
 
     current_directory = os.getcwd()
-    final_directory = os.path.join("/home/juaristi", r'Hierarchy_results')
+    final_directory = os.path.join(current_directory, r'Hierarchy_results')
     if not os.path.exists(final_directory):
         os.makedirs(final_directory)
 
     while os.path.exists(
         os.path.join(
-            "/home/juaristi",
+            os.getcwd(),
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
@@ -284,7 +287,7 @@ def record_experiments(
 
     with open(
         os.path.join(
-            /"home/juaristi",
+            os.getcwd(),
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
@@ -305,7 +308,7 @@ def record_experiments(
         results_json = json.dump(results_dict, f)
 
     filename = os.path.join(
-            "/home/juaristi",
+            os.getcwd(),
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
@@ -391,7 +394,7 @@ def compute_bf(n_leaves, height):
     return bf
 def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportions,
                      local_trainloader, general_testloader,
-                     device=device, branch_f=None, height=None):
+                     device=device, branch_f=None, height=None, experiment_config=None):
 
     """
     Creates a federated machine learning model hierarchy with intermediate aggregator nodes
@@ -408,6 +411,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     device: str, device on which to perform computation
     branch_f: int, default:None, desired maximum branching factor
     height: int, default:None, desired height of the tree
+    experiment_config: st, default:None, configuration of the current experiment run if any
 
     Returns
     -------
@@ -632,7 +636,8 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
         branching_factor=branch_f,
         height=height,
         client_results=client_results,
-        aggregator_results=aggregator_results)
+        aggregator_results=aggregator_results,
+        experiment_config=experiment_config)
 
     return client_results, aggregator_results, naming_dict, genealogy
 
