@@ -51,7 +51,7 @@ def experiment_configs(max_n_models, max_bf):
                 configs_dict["bf"] = bf
                 configs_dict["data_dist"] = True
                 configurations.append(configs_dict)
-                config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{data_dist}")
+                config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf):
