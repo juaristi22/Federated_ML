@@ -40,14 +40,10 @@ def experiment_configs(max_n_models, max_bf):
     BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     equal_data_dist = [True, False]
 
-    print(NUM_MODELS)
-    print(BRANCHING_FACTOR)
-    print(equal_data_dist)
-
     configurations = []
     config_descriptions = []
-    for n_models in NUM_MODELS:
-        for bf in BRANCHING_FACTOR:
+    for bf in BRANCHING_FACTOR:
+        for n_models in NUM_MODELS[bf:]:
             for data_dist in equal_data_dist:
                 configs_dict = {}
                 print(n_models)
@@ -81,7 +77,6 @@ def experiment_running(max_n_models, max_bf):
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
                                             max_bf=max_bf)
-    print(configurations)
     for configuration in tqdm(configurations):
         i = 0
         print(f"Running experiment {i} on configuration: {config_descriptions[i]}")
