@@ -111,6 +111,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None):
                                             max_n_models=max_n_models,
                                             max_bf=max_bf,
                                             max_height=max_height)
+    print(configurations)
     i = 0
     for configuration in tqdm(configurations):
         print(f"Running experiment {i} on configuration: {configurations[i]}")
