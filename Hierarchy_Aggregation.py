@@ -196,7 +196,7 @@ def initialize_models(
     return local_models_list, naming_dict
 
 
-BATCH_SIZE = 256
+BATCH_SIZE = 32
 NUM_MODELS = 7
 equal_sizes = True
 NUM_ROUNDS = 10
