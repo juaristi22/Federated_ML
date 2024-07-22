@@ -60,6 +60,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
         HEIGHT = [i for i in range(2, max_height+1)]
     equal_data_dist = [True, False]
 
+    print(HEIGHT)
     configurations = []
     config_descriptions = []
     if max_bf:
