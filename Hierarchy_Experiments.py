@@ -91,6 +91,7 @@ def experiment_running(max_n_models, max_bf):
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
                                             max_bf=max_bf)
+    print(config_descriptions)
     for configuration in tqdm(configurations):
         i = 0
         print(f"Running experiment {i} on configuration: {configurations[i]}")
@@ -104,6 +105,7 @@ def experiment_running(max_n_models, max_bf):
             batch_size=BATCH_SIZE,
             equal_sizes=True)
 
+        print(config_descriptions[i])
         client_results, aggregator_results, naming_dict, genealogy, filename = HA.create_hierarchy(
                             local_models_list=local_models_list,
                             naming_dict=naming_dict,

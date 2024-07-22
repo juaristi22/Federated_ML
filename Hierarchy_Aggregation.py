@@ -275,16 +275,12 @@ def record_experiments(
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
-            + "_lr"
-            + str(model.lr)
             + "_clientmodels_"
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
             + "_specifiedheight_"
             + str(height)
-            + "_nrounds_"
-            + str(n_rounds)
             + ".json",
         )
     ):
@@ -296,16 +292,12 @@ def record_experiments(
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
-            + "_lr"
-            + str(model.lr)
             + "_clientmodels_"
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
             + "_specifiedheight_"
             + str(height)
-            + "_nrounds_"
-            + str(n_rounds)
             + ".json",
         ),
         "w+",
@@ -317,16 +309,12 @@ def record_experiments(
             "Hierarchy_results/experiment_"
             + str(experiment)
             + "_HierarchicalBranchingFactor"
-            + "_lr"
-            + str(model.lr)
             + "_clientmodels_"
             + str(num_clients)
             + "_branchingfactor_"
             + str(branching_factor)
             + "_specifiedheight_"
             + str(height)
-            + "_nrounds_"
-            + str(n_rounds)
             + ".png",
         )
 
