@@ -631,7 +631,7 @@ if __name__ == "__main__":
             global_model_instance=global_model,
             train_data=train_data,
             test_data=test_data,
-            learning_rate=0.00000001,
+            learning_rate=0.0001,
             equal_sizes=True,
             NUM_MODELS=2,
             NUM_ROUNDS=1,
