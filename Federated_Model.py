@@ -19,10 +19,10 @@ import os
 import argparse
 import logging
 
-train_data = datasets.CIFAR10(
+train_data = datasets.FashionMNIST(
     root="data", train=True, download=True, transform=ToTensor())
 
-test_data = datasets.CIFAR10(
+test_data = datasets.FashionMNIST(
     root="data", train=False, download=True, transform=ToTensor())
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
@@ -56,7 +56,7 @@ class CNNModel(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 16 * 16, out_features=output_shape),
+            nn.Linear(in_features=hidden_units * 14 * 14, out_features=output_shape),
         )
 
     def forward(self, x):
@@ -65,7 +65,7 @@ class CNNModel(nn.Module):
         return x
 
 
-global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(
+global_model = CNNModel(input_shape=1, hidden_units=10, output_shape=10).to(
     device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
@@ -432,7 +432,7 @@ def federate_model(
     BATCH_SIZE = 256
     loss_fn = nn.CrossEntropyLoss()
 
-    input_shape = 3
+    input_shape = 1
     hidden_units = 10
     output_shape = 10
 

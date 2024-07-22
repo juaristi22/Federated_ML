@@ -136,7 +136,7 @@ class Aggregator(FM.CNNModel):
 
 def initialize_models(
     NUM_MODELS, device=device, epochs=5, lr=0.000001):
-    input_shape = 3
+    input_shape = 1
     hidden_units = 10
     output_shape = 10
     """
@@ -416,7 +416,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     genealogy: list[model instances], list containing all nodes to retrieve their genealogy
     filename: str, directory of the saved results
     """
-    input_shape=3
+    input_shape=1
     hidden_units=10
     output_shape=10
 
