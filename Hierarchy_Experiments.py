@@ -92,9 +92,9 @@ def experiment_running(max_n_models, max_bf):
                                             max_n_models=max_n_models,
                                             max_bf=max_bf)
     print(config_descriptions)
+    i = 0
     for configuration in tqdm(configurations):
         print("HELLO")
-        i = 0
         print(f"Running experiment {i} on configuration: {configurations[i]}")
         local_models_list, naming_dict = HA.initialize_models(
             NUM_MODELS=configuration["n_models"],
