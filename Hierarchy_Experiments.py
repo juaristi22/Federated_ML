@@ -36,7 +36,7 @@ def logger_setup(filename):
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-def experiment_configs(max_n_models, max_bf):
+def experiment_configs(max_n_models, max_bf=None, max_height=None):
     """
     Configures all possible combinations of
         the desired hyperparameters to be tested
@@ -45,6 +45,7 @@ def experiment_configs(max_n_models, max_bf):
     ----------
     max_n_models: int, maximum number of client models to test for
     max_bf: int, maximum branching factor to test for
+    max_height: int, maximum tree height to test for
 
     Returns
     -------
@@ -54,31 +55,47 @@ def experiment_configs(max_n_models, max_bf):
     """
     NUM_MODELS = [i for i in range(2, max_n_models+1)]
     BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
+    HEIGHT = [i for i in range(2, max_height+1)]
     equal_data_dist = [True, False]
 
     configurations = []
     config_descriptions = []
-    for bf in BRANCHING_FACTOR:
-        for n_models in NUM_MODELS:
-            #for data_dist in equal_data_dist:
-            if n_models >= bf:
-                configs_dict = {}
-                configs_dict["n_models"] = n_models
-                configs_dict["bf"] = bf
-                configs_dict["data_dist"] = True
-                configurations.append(configs_dict)
-                config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
+    if BRANCHING_FACTOR:
+        for bf in BRANCHING_FACTOR:
+            for n_models in NUM_MODELS:
+                #for data_dist in equal_data_dist:
+                if n_models >= bf:
+                    configs_dict = {}
+                    configs_dict["n_models"] = n_models
+                    configs_dict["bf"] = bf
+                    configs_dict["bf"] = None
+                    configs_dict["data_dist"] = True
+                    configurations.append(configs_dict)
+                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
+    elif HEIGHT:
+        for height in HEIGHT:
+            for n_models in NUM_MODELS:
+                #for data_dist in equal_data_dist:
+                if n_models >= bf:
+                    configs_dict = {}
+                    configs_dict["n_models"] = n_models
+                    configs_dict["bf"] = None
+                    configs_dict["bf"] = height
+                    configs_dict["data_dist"] = True
+                    configurations.append(configs_dict)
+                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
 
     return configurations, config_descriptions
-def experiment_running(max_n_models, max_bf):
+def experiment_running(max_n_models, max_bf=None, max_height=None):
     """
     Runs an experiment for each hyperparameter
         configuration on Hierarchy_Aggregation.py
 
     Parameters
     ----------
-    n_models: int, maximum number of client models to test for
-    bf: int, maximum branching factor to test for
+    max_n_models: int, maximum number of client models to test for
+    max_bf: int, maximum branching factor to test for
+    max_height: int, maximum tree height to test for
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.000001
@@ -90,7 +107,8 @@ def experiment_running(max_n_models, max_bf):
 
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
-                                            max_bf=max_bf)
+                                            max_bf=max_bf,
+                                            max_height=max_height)
     i = 0
     for configuration in tqdm(configurations):
         print(f"Running experiment {i} on configuration: {configurations[i]}")
@@ -110,7 +128,7 @@ def experiment_running(max_n_models, max_bf):
                             local_trainloader=local_trainloader,
                             general_testloader=general_testloader,
                             NUM_ROUNDS=ROUNDS,
-                            height=None,
+                            height=configuration["height"],
                             split_proportions=split_proportions,
                             device=device,
                             branch_f=configuration["bf"],
@@ -134,11 +152,17 @@ if __name__ == "__main__":
         type=int,
         help="maximum branching factor for the last experiment config",
     )
+    parser.add_argument(
+        "--max_height",
+        type=int,
+        help="maximum tree height for the last experiment config",
+    )
 
     args = vars(parser.parse_args())
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
-    experiment_running(max_n_models=32, max_bf=10)
+    max_height = args["max_height"]
+    experiment_running(max_n_models=10, max_bf=None, max_height=1)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
