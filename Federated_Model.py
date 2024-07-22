@@ -80,12 +80,14 @@ class CNNModel(nn.Module):
 
     def forward(self, x):
         x = self.conv_block_1(x)
+        print(x.shape)
         x = self.conv_block_2(x)
+        print(x.shape)
         x = self.classifier(x)
         return x
 
 
-global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(
+global_model = CNNModel(input_shape=3, hidden_units=15, output_shape=10).to(
     device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
@@ -453,7 +455,7 @@ def federate_model(
     loss_fn = nn.CrossEntropyLoss()
 
     input_shape = 3
-    hidden_units = 10
+    hidden_units = 15
     output_shape = 10
 
     # split training data for the local models
