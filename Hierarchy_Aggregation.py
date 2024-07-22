@@ -135,7 +135,7 @@ class Aggregator(FM.CNNModel):
         return self.name
 
 def initialize_models(
-    NUM_MODELS, device=device, epochs=5, lr=0.0001):
+    NUM_MODELS, device=device, epochs=5, lr=0.000001):
     input_shape = 3
     hidden_units = 10
     output_shape = 10
