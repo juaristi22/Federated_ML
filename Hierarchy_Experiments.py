@@ -54,15 +54,15 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     config_descriptions: list[str], descriptions of all produced configurations
     """
     NUM_MODELS = [i for i in range(2, max_n_models+1)]
-    if BRANCHING_FACTOR:
+    if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
-    if HEIGHT:
+    if max_height:
         HEIGHT = [i for i in range(2, max_height+1)]
     equal_data_dist = [True, False]
 
     configurations = []
     config_descriptions = []
-    if BRANCHING_FACTOR:
+    if max_bf:
         for bf in BRANCHING_FACTOR:
             for n_models in NUM_MODELS:
                 #for data_dist in equal_data_dist:
@@ -74,7 +74,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
                     configs_dict["data_dist"] = True
                     configurations.append(configs_dict)
                     config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
-    elif HEIGHT:
+    elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
                 #for data_dist in equal_data_dist:
