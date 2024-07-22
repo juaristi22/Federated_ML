@@ -626,7 +626,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
 
     filename = record_experiments(
         model=client,
-        num_clients=NUM_MODELS,
+        num_clients=len(local_models_list),
         split_proportions=split_proportions,
         n_rounds=NUM_ROUNDS,
         branching_factor=branch_f,
