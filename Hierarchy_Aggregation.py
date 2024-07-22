@@ -23,7 +23,7 @@ import logging
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 class Client(FM.CNNModel):
     def __init__(self, input_shape, hidden_units, output_shape,
-                 epochs=None, data=None, learning_rate=0.000001, device=device):
+                 epochs=None, data=None, learning_rate=0.00000001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.lr = learning_rate
         self.optimizer = None
@@ -416,6 +416,9 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     genealogy: list[model instances], list containing all nodes to retrieve their genealogy
     filename: str, directory of the saved results
     """
+    input_shape=3
+    hidden_units=10
+    output_shape=10
 
     if (branch_f == None) and (height == None):
         raise ValueError("Please choose either a branching factor or "
@@ -464,7 +467,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
 
                 if round == 0:
                     #create an aggregator for the trained models
-                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
+                    agg = Aggregator(input_shape=input_shape, hidden_units=hidden_units, output_shape=output_shape).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -503,7 +506,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     model_num += 1
 
                 if round == 0:
-                    agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
+                    agg = Aggregator(input_shape=input_shape, hidden_units=hidden_units, output_shape=output_shape).to(device)
                     agg.named(iteration)
                     naming_dict[agg.name] = agg
                     aggregator_results[agg.name] = copy.deepcopy(results)
@@ -544,7 +547,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                     tested_aggs.append(agg)
 
                 if round == 0:
-                    new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
+                    new_agg = Aggregator(input_shape=input_shape, hidden_units=hidden_units, output_shape=output_shape).to(device)
                     new_agg.named(iteration)
                     naming_dict[new_agg.name] = new_agg
                     aggregator_results[new_agg.name] = copy.deepcopy(results)
@@ -582,7 +585,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
                         tested_aggs.append(agg)
 
                     if round == 0:
-                        new_agg = Aggregator(input_shape=3, hidden_units=10, output_shape=10).to(device)
+                        new_agg = Aggregator(input_shape=input_shape, hidden_units=hidden_units, output_shape=output_shape).to(device)
                         new_agg.named(iteration)
                         naming_dict[new_agg.name] = new_agg
                         aggregator_results[new_agg.name] = copy.deepcopy(results)
