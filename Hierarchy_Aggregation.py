@@ -197,7 +197,7 @@ def initialize_models(
 
 
 BATCH_SIZE = 32
-NUM_MODELS = 7
+NUM_MODELS = 2
 equal_sizes = True
 NUM_ROUNDS = 10
 BRANCH_FACTOR = 2
