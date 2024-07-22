@@ -23,7 +23,7 @@ import logging
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 class Client(FM.CNNModel):
     def __init__(self, input_shape, hidden_units, output_shape,
-                 epochs=None, data=None, learning_rate=0.0001, device=device):
+                 epochs=None, data=None, learning_rate=0.000001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.lr = learning_rate
         self.optimizer = None
@@ -196,7 +196,7 @@ def initialize_models(
     return local_models_list, naming_dict
 
 
-BATCH_SIZE = 32
+BATCH_SIZE = 256
 NUM_MODELS = 2
 equal_sizes = True
 NUM_ROUNDS = 10

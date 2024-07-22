@@ -81,8 +81,8 @@ def experiment_running(max_n_models, max_bf):
     bf: int, maximum branching factor to test for
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-    learning_rate = 0.0001
-    BATCH_SIZE = 32
+    learning_rate = 0.000001
+    BATCH_SIZE = 256
     EPOCHS = 5
     ROUNDS = 10
 
