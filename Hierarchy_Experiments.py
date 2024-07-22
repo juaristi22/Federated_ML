@@ -84,7 +84,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
                 configs_dict["bf"] = height
                 configs_dict["data_dist"] = True
                 configurations.append(configs_dict)
-                config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
+                config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf=None, max_height=None):
