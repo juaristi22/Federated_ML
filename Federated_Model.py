@@ -109,7 +109,7 @@ class NewModel(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=64 * 16 * 16, out_features=output_shape),
+            nn.Linear(in_features=64 * 8 * 8, out_features=output_shape),
         )
 
     def forward(self, x):
