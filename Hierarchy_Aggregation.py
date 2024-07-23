@@ -23,7 +23,7 @@ import logging
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 class Client(FM.NewModel):
     def __init__(self, input_shape, hidden_units, output_shape,
-                 epochs=None, data=None, learning_rate=0.00001, device=device):
+                 epochs=None, data=None, learning_rate=0.000001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.lr = learning_rate
         self.optimizer = None
@@ -135,7 +135,7 @@ class Aggregator(FM.NewModel):
         return self.name
 
 def initialize_models(
-    NUM_MODELS, device=device, epochs=5, lr=0.0001):
+    NUM_MODELS, device=device, epochs=5, lr=0.000001):
     input_shape = 3
     hidden_units = 10
     output_shape = 10
