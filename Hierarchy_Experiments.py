@@ -99,7 +99,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None):
     max_height: int, maximum tree height to test for
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-    learning_rate = 0.0001
+    learning_rate = 0.00001
     BATCH_SIZE = 256
     EPOCHS = 5
     ROUNDS = 10

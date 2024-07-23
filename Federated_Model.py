@@ -19,10 +19,10 @@ import os
 import argparse
 import logging
 
-train_data = datasets.FashionMNIST(
+train_data = datasets.CIFAR10(
     root="data", train=True, download=True, transform=ToTensor())
 
-test_data = datasets.FashionMNIST(
+test_data = datasets.CIFAR10(
     root="data", train=False, download=True, transform=ToTensor())
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
@@ -64,8 +64,63 @@ class CNNModel(nn.Module):
         x = self.classifier(x)
         return x
 
+class NewModel(nn.Module):
+    def __init__(self, input_shape, hidden_units, output_shape):
+        super().__init__()
+        self.conv_block_1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=input_shape,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2,
+                         stride=2),
+        )
+        self.conv_block_2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2,
+                         stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(in_features=64 * 16 * 16, out_features=output_shape),
+        )
 
-global_model = CNNModel(input_shape=1, hidden_units=10, output_shape=10).to(
+    def forward(self, x):
+        x = self.conv_block_1(x)
+        print(x.shape)
+        x = self.conv_block_2(x)
+        print(x.shape)
+        x = self.classifier(x)
+        return x
+
+global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(
     device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
@@ -432,7 +487,7 @@ def federate_model(
     BATCH_SIZE = 256
     loss_fn = nn.CrossEntropyLoss()
 
-    input_shape = 1
+    input_shape = 3
     hidden_units = 10
     output_shape = 10
 

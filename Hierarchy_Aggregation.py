@@ -21,9 +21,9 @@ import Federated_Model as FM
 import logging
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-class Client(FM.CNNModel):
+class Client(FM.NewModel):
     def __init__(self, input_shape, hidden_units, output_shape,
-                 epochs=None, data=None, learning_rate=0.0001, device=device):
+                 epochs=None, data=None, learning_rate=0.00001, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.lr = learning_rate
         self.optimizer = None
@@ -86,7 +86,7 @@ class Client(FM.CNNModel):
     def __str__(self):
         return self.name
 
-class Aggregator(FM.CNNModel):
+class Aggregator(FM.NewModel):
     def __init__(self, input_shape, hidden_units, output_shape, device=device):
         super().__init__(input_shape, hidden_units, output_shape)
         self.parent = None
@@ -136,7 +136,7 @@ class Aggregator(FM.CNNModel):
 
 def initialize_models(
     NUM_MODELS, device=device, epochs=5, lr=0.0001):
-    input_shape = 1
+    input_shape = 3
     hidden_units = 10
     output_shape = 10
     """
@@ -416,7 +416,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     genealogy: list[model instances], list containing all nodes to retrieve their genealogy
     filename: str, directory of the saved results
     """
-    input_shape=1
+    input_shape=3
     hidden_units=10
     output_shape=10
 
