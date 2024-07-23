@@ -163,7 +163,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=10, max_bf=None, max_height=1)
+    experiment_running(max_n_models=15, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
