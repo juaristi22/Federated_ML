@@ -161,8 +161,8 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
 
         for client, performance in total_client_results.items():
             for metric, values in performance.items():
-                for i in range(len(total_aggregator_results[client][metric])):
-                    total_aggregator_results[client][metric][i] /= experiments
+                for i in range(len(total_client_results[client][metric])):
+                    total_client_results[client][metric][i] /= experiments
         for agg, performance in total_aggregator_results.items():
             for metric, values in performance.items():
                 for i in range(len(total_aggregator_results[agg][metric])):
