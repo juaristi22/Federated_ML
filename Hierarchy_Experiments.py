@@ -103,7 +103,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     learning_rate = 0.000001
     BATCH_SIZE = 256
     EPOCHS = 5
-    ROUNDS = 10
+    ROUNDS = 5
 
     general_testloader = HA.general_testloader
 
