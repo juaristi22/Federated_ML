@@ -168,6 +168,8 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                 for i in total_aggregator_results[agg][metric]:
                     print("HELLO")
                     print(total_aggregator_results[agg][metric])
+                    print(experiments)
+                    print(i / experiments)
                     i /= experiments
                     print(total_aggregator_results[agg][metric])
         print(total_aggregator_results)
