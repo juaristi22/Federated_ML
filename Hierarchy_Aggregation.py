@@ -627,7 +627,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     for i in genealogy:
         print(f"{i.name}´s children: {i.children_nodes}")
 
-    filename = record_experiments(
+    record_experiments(
         model=client,
         num_clients=len(local_models_list),
         split_proportions=split_proportions,
@@ -638,7 +638,7 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
         aggregator_results=aggregator_results,
         experiment_config=experiment_config)
 
-    return client_results, aggregator_results, naming_dict, genealogy, filename
+    return client_results, aggregator_results, naming_dict, genealogy
 
 if __name__ == "__main__":
     client_results, aggregator_results, naming_dict, genealogy, filename = create_hierarchy(local_models_list,

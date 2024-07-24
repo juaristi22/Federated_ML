@@ -53,7 +53,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
         the respective values of each hyperparameter
     config_descriptions: list[str], descriptions of all produced configurations
     """
-    NUM_MODELS = [i for i in range(16, max_n_models+1)]
+    NUM_MODELS = [i for i in range(2, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
@@ -87,7 +87,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
                 config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
 
     return configurations, config_descriptions
-def experiment_running(max_n_models, max_bf=None, max_height=None):
+def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
     """
     Runs an experiment for each hyperparameter
         configuration on Hierarchy_Aggregation.py
@@ -97,6 +97,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None):
     max_n_models: int, maximum number of client models to test for
     max_bf: int, maximum branching factor to test for
     max_height: int, maximum tree height to test for
+    experiments: int, number of experiments to run on each configuration
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.000001
@@ -110,33 +111,60 @@ def experiment_running(max_n_models, max_bf=None, max_height=None):
                                             max_n_models=max_n_models,
                                             max_bf=max_bf,
                                             max_height=max_height)
+    total_client_results = {}
+    total_aggregator_results = {}
     i = 0
     for configuration in tqdm(configurations):
         print(f"Running experiment {i} on configuration: {configurations[i]}")
-        local_models_list, naming_dict = HA.initialize_models(
-            NUM_MODELS=configuration["n_models"],
-            epochs=EPOCHS,
-            lr=learning_rate)
-        local_trainloader, split_proportions = FM.split_data(
-            data=FM.train_data,
-            n_splits=configuration["n_models"],
-            batch_size=BATCH_SIZE,
-            equal_sizes=True)
+        for experiment in experiments:
+            local_models_list, naming_dict = HA.initialize_models(
+                NUM_MODELS=configuration["n_models"],
+                epochs=EPOCHS,
+                lr=learning_rate)
+            local_trainloader, split_proportions = FM.split_data(
+                data=FM.train_data,
+                n_splits=configuration["n_models"],
+                batch_size=BATCH_SIZE,
+                equal_sizes=True)
 
-        client_results, aggregator_results, naming_dict, genealogy, filename = HA.create_hierarchy(
-                            local_models_list=local_models_list,
-                            naming_dict=naming_dict,
-                            local_trainloader=local_trainloader,
-                            general_testloader=general_testloader,
-                            NUM_ROUNDS=ROUNDS,
-                            height=configuration["height"],
-                            split_proportions=split_proportions,
-                            device=device,
-                            branch_f=configuration["bf"],
-                            experiment_config=config_descriptions[i])
+            client_results, aggregator_results, naming_dict, genealogy = HA.create_hierarchy(
+                                local_models_list=local_models_list,
+                                naming_dict=naming_dict,
+                                local_trainloader=local_trainloader,
+                                general_testloader=general_testloader,
+                                NUM_ROUNDS=ROUNDS,
+                                height=configuration["height"],
+                                split_proportions=split_proportions,
+                                device=device,
+                                branch_f=configuration["bf"],
+                                experiment_config=config_descriptions[i])
+
+            for client, performance in client_results.items():
+                for metric, values in performance.items():
+                    total_client_results[client][metric] += values
+            for agg, performance in aggregator_results.items():
+                for metric, values in performance.items():
+                    total_aggregator_results[agg][metric] += values
+
+        for client, performance in total_client_results.items()
+            for metric, values in performance.items():
+                total_client_results[client][metric] /= experiments
+        for agg, performance in total_aggregator_results.items():
+            for metric, values in performance.items():
+                total_aggregator_results[agg][metric] /= experiments
+
+        HA.record_experiments(
+        model=client,
+        num_clients=len(local_models_list),
+        split_proportions=split_proportions,
+        n_rounds=NUM_ROUNDS,
+        branching_factor=branch_f,
+        height=height,
+        client_results=total_client_results,
+        aggregator_results=total_aggregator_results,
+        experiment_config=experiment_config)
+
         i += 1
-
-    return filename
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -163,7 +191,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=32, max_bf=None, max_height=5)
+    experiment_running(max_n_models=2, max_bf=None, max_height=1)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
