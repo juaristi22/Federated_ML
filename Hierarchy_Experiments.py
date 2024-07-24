@@ -111,11 +111,11 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                             max_n_models=max_n_models,
                                             max_bf=max_bf,
                                             max_height=max_height)
-    total_client_results = {}
-    total_aggregator_results = {}
     i = 0
     for configuration in tqdm(configurations):
         print(f"Running experiment {i} on configuration: {configurations[i]}")
+        total_client_results = {}
+        total_aggregator_results = {}
         for experiment in range(experiments):
             local_models_list, naming_dict = HA.initialize_models(
                 NUM_MODELS=configuration["n_models"],
@@ -140,18 +140,30 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                 experiment_config=config_descriptions[i])
 
             for client, performance in client_results.items():
+                total_client_results[client] = {}
                 for metric, values in performance.items():
-                    total_client_results[client][metric] += values
+                    if len(total_client_results[client][metric]) == 0:
+                        total_client_results[client][metric] = values
+                    else:
+                        for i in range(len(total_client_results[client][metric])):
+                            total_client_results[client][metric][i] += values[i]
             for agg, performance in aggregator_results.items():
+                total_aggregator_results[agg] = {}
                 for metric, values in performance.items():
-                    total_aggregator_results[agg][metric] += values
+                    if len(total_client_results[agg][metric]) == 0:
+                        total_client_results[agg][metric] = values
+                    else:
+                        for i in range(len(total_client_results[agg][metric])):
+                            total_client_results[agg][metric][i] += values[i]
 
         for client, performance in total_client_results.items():
             for metric, values in performance.items():
-                total_client_results[client][metric] /= experiments
+                for i in total_client_results[client][metric]:
+                    i /= experiments
         for agg, performance in total_aggregator_results.items():
             for metric, values in performance.items():
-                total_aggregator_results[agg][metric] /= experiments
+                for i in total_aggregator_results[agg][metric]:
+                    i /= experiments
 
         HA.record_experiments(
         model=client,
