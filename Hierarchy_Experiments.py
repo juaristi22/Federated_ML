@@ -168,7 +168,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                     i /= experiments
 
         HA.record_experiments(
-        model=client,
+        model=local_models_list[0],
         num_clients=configuration["n_models"],
         split_proportions=split_proportions,
         n_rounds=ROUNDS,
