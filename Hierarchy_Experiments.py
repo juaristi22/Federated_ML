@@ -111,9 +111,9 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                             max_n_models=max_n_models,
                                             max_bf=max_bf,
                                             max_height=max_height)
-    i = 0
+    trial = 0
     for configuration in tqdm(configurations):
-        print(f"Running experiment {i} on configuration: {configurations[i]}")
+        print(f"Running experiment {trial} on configuration: {configurations[trial]}")
         total_client_results = {}
         total_aggregator_results = {}
         for experiment in range(experiments):
@@ -137,7 +137,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                 split_proportions=split_proportions,
                                 device=device,
                                 branch_f=configuration["bf"],
-                                experiment_config=config_descriptions[i])
+                                experiment_config=config_descriptions[trial])
 
             for client, performance in client_results.items():
                 print(client)
@@ -181,7 +181,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         aggregator_results=total_aggregator_results,
         experiment_config=experiment_config)
 
-        i += 1
+        trial += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
