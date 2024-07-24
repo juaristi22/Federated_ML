@@ -102,8 +102,8 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.000001
     BATCH_SIZE = 256
-    EPOCHS = 5
-    ROUNDS = 3
+    EPOCHS = 2
+    ROUNDS = 2
 
     general_testloader = HA.general_testloader
 
