@@ -627,16 +627,16 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
     for i in genealogy:
         print(f"{i.name}´s children: {i.children_nodes}")
 
-    record_experiments(
-        model=client,
-        num_clients=len(local_models_list),
-        split_proportions=split_proportions,
-        n_rounds=NUM_ROUNDS,
-        branching_factor=branch_f,
-        height=height,
-        client_results=client_results,
-        aggregator_results=aggregator_results,
-        experiment_config=experiment_config)
+    #record_experiments(
+        #model=client,
+        #num_clients=len(local_models_list),
+        #split_proportions=split_proportions,
+        #n_rounds=NUM_ROUNDS,
+        #branching_factor=branch_f,
+        #height=height,
+        #client_results=client_results,
+        #aggregator_results=aggregator_results,
+        #experiment_config=experiment_config)
 
     return client_results, aggregator_results, naming_dict, genealogy
 
