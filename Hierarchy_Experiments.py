@@ -140,15 +140,12 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                 experiment_config=config_descriptions[trial])
 
             for client, performance in client_results.items():
-                print(client)
                 if experiment == 0:
                     total_client_results[client] = {}
                 for metric, values in performance.items():
                     if experiment == 0:
-                        print(total_client_results)
                         total_client_results[client][metric] = values
                     else:
-                        print(total_client_results)
                         for i in range(len(total_client_results[client][metric])):
                             total_client_results[client][metric][i] += values[i]
             for agg, performance in aggregator_results.items():
@@ -174,7 +171,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         model=client,
         num_clients=len(local_models_list),
         split_proportions=split_proportions,
-        n_rounds=NUM_ROUNDS,
+        n_rounds=ROUNDS,
         branching_factor=branch_f,
         height=height,
         client_results=total_client_results,
