@@ -166,7 +166,10 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         for agg, performance in total_aggregator_results.items():
             for metric, values in performance.items():
                 for i in total_aggregator_results[agg][metric]:
+                    print("HELLO")
+                    print(i)
                     i /= experiments
+                    print(i)
         print(total_aggregator_results)
         HA.record_experiments(
         model=local_models_list[0],
