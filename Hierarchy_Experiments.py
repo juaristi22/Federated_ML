@@ -102,8 +102,8 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
     learning_rate = 0.000001
     BATCH_SIZE = 256
-    EPOCHS = 2
-    ROUNDS = 3
+    EPOCHS = 5
+    ROUNDS = 10
 
     general_testloader = HA.general_testloader
 
@@ -157,7 +157,6 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                     else:
                         for i in range(len(total_aggregator_results[agg][metric])):
                             total_aggregator_results[agg][metric][i] += values[i]
-                        print(total_aggregator_results)
 
         for client, performance in total_client_results.items():
             for metric, values in performance.items():
@@ -166,10 +165,8 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         for agg, performance in total_aggregator_results.items():
             for metric, values in performance.items():
                 for i in range(len(total_aggregator_results[agg][metric])):
-                    print(total_aggregator_results[agg][metric])
                     total_aggregator_results[agg][metric][i] /= experiments
-                    print(total_aggregator_results[agg][metric])
-        print(total_aggregator_results)
+
         HA.record_experiments(
         model=local_models_list[0],
         num_clients=configuration["n_models"],
@@ -208,7 +205,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=2, max_bf=None, max_height=1)
+    experiment_running(max_n_models=16, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
