@@ -103,7 +103,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     learning_rate = 0.000001
     BATCH_SIZE = 256
     EPOCHS = 5
-    ROUNDS = 5
+    ROUNDS = 3
 
     general_testloader = HA.general_testloader
 
@@ -140,10 +140,13 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                 experiment_config=config_descriptions[i])
 
             for client, performance in client_results.items():
+                print(client)
                 total_client_results[client] = {}
                 for metric, values in performance.items():
+                    print(total_client_results)
                     if experiment == 0:
                         total_client_results[client][metric] = values
+                        print(total_client_results)
                     else:
                         print(total_client_results)
                         for i in range(len(total_client_results[client][metric])):
