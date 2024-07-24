@@ -53,7 +53,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
         the respective values of each hyperparameter
     config_descriptions: list[str], descriptions of all produced configurations
     """
-    NUM_MODELS = [i for i in range(1, max_n_models+1)]
+    NUM_MODELS = [i for i in range(17, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=16, max_bf=None, max_height=5)
+    experiment_running(max_n_models=32, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
