@@ -169,14 +169,14 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
 
         HA.record_experiments(
         model=client,
-        num_clients=len(local_models_list),
+        num_clients=configuration["n_models"],
         split_proportions=split_proportions,
         n_rounds=ROUNDS,
-        branching_factor=branch_f,
-        height=height,
+        branching_factor=configuration["bf"],
+        height=configuration["height"],
         client_results=total_client_results,
         aggregator_results=total_aggregator_results,
-        experiment_config=experiment_config)
+        experiment_config=config_descriptions[trial])
 
         trial += 1
 
