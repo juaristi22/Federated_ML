@@ -145,6 +145,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                     if experiment == 0:
                         total_client_results[client][metric] = values
                     else:
+                        print(total_client_results)
                         for i in range(len(total_client_results[client][metric])):
                             total_client_results[client][metric][i] += values[i]
             for agg, performance in aggregator_results.items():
@@ -153,6 +154,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                     if experiment == 0:
                         total_aggregator_results[agg][metric] = values
                     else:
+                        print(total_aggregator_results)
                         for i in range(len(total_aggregator_results[agg][metric])):
                             total_aggregator_results[agg][metric][i] += values[i]
 
