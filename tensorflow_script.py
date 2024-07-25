@@ -8,19 +8,6 @@ from tensorflow.keras.utils import to_categorical as tc
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Check if TensorFlow can access the GPU
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    print("GPUs are available")
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(e)
-else:
-    print("GPUs are not available")
-tf.debugging.set_log_device_placement(True)
-
 ###set parameters###
 num_models = 8
 epochs_per_round = 5
@@ -351,7 +338,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                                                              max_bf=max_bf, max_height=max_height)
 
     trial = 0
-    for configuration in tqdm(configurations):
+    for configuration in configurations:
         print(f"Running experiment {trial} on configuration: {configurations[trial]}")
         for experiment in range(experiments):
             test_acc, split_sizes = create_hierarchy(NUM_ROUNDS=ROUNDS, num_models=configuration["n_models"],
