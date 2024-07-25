@@ -53,11 +53,11 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
         the respective values of each hyperparameter
     config_descriptions: list[str], descriptions of all produced configurations
     """
-    NUM_MODELS = [i for i in range(17, max_n_models+1)]
+    NUM_MODELS = [i for i in range(2, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
-        HEIGHT = [i for i in range(1, max_height+1)]
+        HEIGHT = [i for i in range(2, max_height+1)]
     equal_data_dist = [True, False]
 
     configurations = []
@@ -77,14 +77,15 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
-                #for data_dist in equal_data_dist:
-                configs_dict = {}
-                configs_dict["n_models"] = n_models
-                configs_dict["bf"] = None
-                configs_dict["height"] = height
-                configs_dict["data_dist"] = True
-                configurations.append(configs_dict)
-                config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
+                if n_models >= height + 1:
+                    #for data_dist in equal_data_dist:
+                    configs_dict = {}
+                    configs_dict["n_models"] = n_models
+                    configs_dict["bf"] = None
+                    configs_dict["height"] = height
+                    configs_dict["data_dist"] = True
+                    configurations.append(configs_dict)
+                    config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
@@ -205,7 +206,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=32, max_bf=None, max_height=5)
+    experiment_running(max_n_models=16, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
