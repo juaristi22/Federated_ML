@@ -19,10 +19,6 @@ if gpus:
         print(e)
 else:
     print("GPUs are not available")
-
-# Set the environment variable to log device placement
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress detailed logs
-os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'  # Prevents TensorFlow from grabbing all GPU memory
 tf.debugging.set_log_device_placement(True)
 
 ###set parameters###
