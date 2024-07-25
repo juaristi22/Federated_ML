@@ -1,3 +1,5 @@
+import copy
+
 import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.keras.datasets import fashion_mnist, cifar10
@@ -5,6 +7,23 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, BatchNormalizat
 from tensorflow.keras.utils import to_categorical as tc
 import numpy as np
 import matplotlib.pyplot as plt
+
+# Check if TensorFlow can access the GPU
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    print("GPUs are available")
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+else:
+    print("GPUs are not available")
+
+# Set the environment variable to log device placement
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress detailed logs
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'  # Prevents TensorFlow from grabbing all GPU memory
+tf.debugging.set_log_device_placement(True)
 
 ###set parameters###
 num_models = 8
@@ -18,12 +37,6 @@ x  = x/255.0
 y = tc(y)
 x_test = x_test/255.0
 y_test = tc(y_test)
-
-###you can probably use your function here###
-def federate_data(x,y):
-    ###???###
-    #return(x,y)
-    pass
 
 def split_data(x, y, n_splits, equal_sizes):
     if equal_sizes:
@@ -77,19 +90,297 @@ def get_model(classes=10,input_shape=(32,32,3)):
     #model.summary()
     return(model)
 
-###federated learning###
-global_model = get_model()
-weights_list = [global_model.get_weights()]*num_models
+def run_federation(num_models, rounds, x, y, x_test, y_test):
+    epochs_per_round = 5
+    bs = 128
 
-for r in range(rounds):
-    print('Starting round '+str(r+1))
-    for m in range(num_models):
-        print('training model ' + str(m+1))
-        global_model.set_weights(weights_list[m])
-        global_model.fit(x[:int(len(x)/num_models)],y[:int(len(x)/num_models)],epochs=epochs_per_round,batch_size=bs,validation_data=(x_test,y_test),verbose=0)
-        weights_list[m]=global_model.get_weights()
-    global_weights=np.mean(np.array(weights_list,dtype='object'),axis=0)
-    weights_list = [global_weights]*num_models
-    global_model.set_weights(global_weights)
-    print('global model performance after '+str(r+1)+' round:')
-    global_model.evaluate(x_test,y_test,batch_size=1024)
+    ###federated learning###
+    global_model = get_model()
+    weights_list = [global_model.get_weights()]*num_models
+
+    x_splits, y_splits, split_sizes = split_data(x, y, num_models, True)
+
+    for r in range(rounds):
+        print('Starting round '+str(r+1))
+        for m in range(num_models):
+            print('training model ' + str(m+1))
+            global_model.set_weights(weights_list[m])
+            global_model.fit(x_splits[m],y_splits[m],
+                             epochs=epochs_per_round,batch_size=bs,validation_data=(x_test,y_test),verbose=0)
+            weights_list[m]=global_model.get_weights()
+        global_weights=np.mean(np.array(weights_list,dtype='object'),axis=0)
+        weights_list = [global_weights]*num_models
+        global_model.set_weights(global_weights)
+        print('global model performance after '+str(r+1)+' round:')
+        global_model.evaluate(x_test,y_test,batch_size=1024)
+
+
+def compute_bf(n_leaves, height):
+    bf = n_leaves * (1/height)
+    bf = round(bf)
+    return bf
+
+
+def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
+                     branch_f=None, height=None):
+    epochs_per_round = 5
+    bs = 128
+
+    if (branch_f == None) and (height == None):
+        raise ValueError("Please choose either a branching factor or "
+                         "height hyperparameter to create the aggregation hierarchy")
+    elif (branch_f != None) and (height != None):
+        raise ValueError("Please choose only either a branching factor or "
+                         "height hyperparameter to create the aggregation hierarchy, "
+                         "setting the other to None")
+    elif (branch_f != None) and (height == None):
+        pass
+    elif (branch_f == None) and (height != None):
+        branch_f = compute_bf(num_models, height)
+
+    test_acc = []
+
+    global_model = get_model()
+    client_weights = [global_model.get_weights()] * num_models
+    x_splits, y_splits, split_sizes = split_data(x, y, num_models, True)
+
+    for round in range(NUM_ROUNDS):
+        print(f"Round: {round}:")
+        iteration = 0
+        weights_list = copy.deepcopy(client_weights)
+        for m in range(num_models):
+            print('training model ' + str(m + 1))
+            global_model.set_weights(client_weights[m])
+            global_model.fit(x_splits[m],y_splits[m], epochs=epochs_per_round,
+                             batch_size=bs, validation_data=(x_test, y_test), verbose=0)
+            weights_list[m] = global_model.get_weights()
+            client_weights[m] = global_model.get_weights()
+
+        aggregator_weights = []
+        print('aggregating client models')
+        while weights_list:
+            if len(weights_list) > (branch_f - 1):
+                avg = []
+                for i in range(branch_f):
+                    current_weights = weights_list.pop(0)
+                    avg.append(current_weights)
+                averaged_weights = np.mean(np.array(avg,dtype='object'),axis=0)
+                global_model.set_weights(averaged_weights)
+                global_model.evaluate(x_test, y_test, batch_size=1024)
+                aggregator_weights.append(averaged_weights)
+            else:
+                avg = []
+                for i in range(len(weights_list)):
+                    current_weights = weights_list.pop(0)
+                    avg.append(current_weights)
+                averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
+                global_model.set_weights(averaged_weights)
+                global_model.evaluate(x_test, y_test, batch_size=1024)
+                aggregator_weights.append(averaged_weights)
+
+        print('completing hierarchy with aggregator nodes')
+        while aggregator_weights:
+            if len(aggregator_weights) > (branch_f - 1):
+                avg = []
+                for i in range(branch_f):
+                    current_weights = weights_list.pop(0)
+                    avg.append(current_weights)
+                averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
+                global_model.set_weights(averaged_weights)
+                global_model.evaluate(x_test, y_test, batch_size=1024)
+                aggregator_weights.append(averaged_weights)
+            else:
+                if len(aggregator_weights) == 1:
+                    current_weights = aggregator_weights.pop(0)
+                    global_model.set_weights(current_weights)
+                    print('global model performance after ' + str(round + 1) + ' round:')
+                    metrics = global_model.evaluate(x_test, y_test, batch_size=1024)
+                    test_acc.append(metrics[1])
+                else:
+                    avg = []
+                    for i in range(branch_f):
+                        current_weights = weights_list.pop(0)
+                        avg.append(current_weights)
+                    averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
+                    global_model.set_weights(averaged_weights)
+                    global_model.evaluate(x_test, y_test, batch_size=1024)
+                    aggregator_weights.append(averaged_weights)
+
+    return test_acc, split_sizes
+
+
+def plot_loss_curves(accuracies, config, filename=None):
+    rounds = range(len(accuracies))
+
+    plt.plot(rounds, accuracies, color="blue")
+    plt.set_title(config)
+    plt.xlabel("Rounds")
+    plt.ylabel("Accuracy")
+    plt.grid()
+
+    if filename:
+        plt.savefig(fname=filename)
+    else:
+        plt.show()
+
+def record_experiments(
+    num_clients,
+    split_proportions,
+    n_rounds,
+    branching_factor,
+    height,
+    accuracy_results,
+    experiment_config=None):
+
+    results_dict = {
+        "model_name": "HierarchicalBranchingFactor",
+        "num_clients": num_clients,
+        "data_split_proportions": split_proportions,
+        "n_rounds": n_rounds,
+        "max_branching_factor": branching_factor,
+        "height": height,
+        "accuracy_results": accuracy_results,
+        "experiment_config": experiment_config
+    }
+
+    experiment = 0
+
+    current_directory = os.getcwd()
+    final_directory = os.path.join(current_directory, r'Hierarchy_results')
+    if not os.path.exists(final_directory):
+        os.makedirs(final_directory)
+
+    while os.path.exists(
+        os.path.join(
+            os.getcwd(),
+            "Hierarchy_results/experiment_"
+            + str(experiment)
+            + "_HierarchicalBranchingFactor"
+            + "_clientmodels_"
+            + str(num_clients)
+            + "_branchingfactor_"
+            + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
+            + ".json",
+        )
+    ):
+        experiment += 1
+
+    with open(
+        os.path.join(
+            os.getcwd(),
+            "Hierarchy_results/experiment_"
+            + str(experiment)
+            + "_HierarchicalBranchingFactor"
+            + "_clientmodels_"
+            + str(num_clients)
+            + "_branchingfactor_"
+            + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
+            + ".json",
+        ),
+        "w+",
+    ) as f:
+        json.dump(results_dict, f)
+
+    filename = os.path.join(
+            os.getcwd(),
+            "Hierarchy_results/experiment_"
+            + str(experiment)
+            + "_HierarchicalBranchingFactor"
+            + "_clientmodels_"
+            + str(num_clients)
+            + "_branchingfactor_"
+            + str(branching_factor)
+            + "_specifiedheight_"
+            + str(height)
+            + ".png",
+        )
+
+    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
+
+
+def experiment_configs(max_n_models, max_bf=None, max_height=None):
+    NUM_MODELS = [i for i in range(2, max_n_models+1)]
+    if max_bf:
+        BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
+    if max_height:
+        HEIGHT = [i for i in range(1, max_height+1)]
+    equal_data_dist = [True, False]
+
+    configurations = []
+    config_descriptions = []
+    if max_bf:
+        for bf in BRANCHING_FACTOR:
+            for n_models in NUM_MODELS:
+                #for data_dist in equal_data_dist:
+                if n_models >= bf:
+                    configs_dict = {}
+                    configs_dict["n_models"] = n_models
+                    configs_dict["bf"] = bf
+                    configs_dict["height"] = None
+                    configs_dict["data_dist"] = True
+                    configurations.append(configs_dict)
+                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
+    elif max_height:
+        for height in HEIGHT:
+            for n_models in NUM_MODELS:
+                if n_models >= height + 1:
+                    #for data_dist in equal_data_dist:
+                    configs_dict = {}
+                    configs_dict["n_models"] = n_models
+                    configs_dict["bf"] = None
+                    configs_dict["height"] = height
+                    configs_dict["data_dist"] = True
+                    configurations.append(configs_dict)
+                    config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
+
+    return configurations, config_descriptions
+
+
+def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
+    BATCH_SIZE = 256
+    EPOCHS = 5
+    ROUNDS = 10
+
+    (x, y), (x_test, y_test) = cifar10.load_data()
+    x = x / 255.0
+    y = tc(y)
+    x_test = x_test / 255.0
+    y_test = tc(y_test)
+
+    configurations, config_descriptions = experiment_configs(max_n_models=max_n_models,
+                                                             max_bf=max_bf, max_height=max_height)
+
+    trial = 0
+    for configuration in tqdm(configurations):
+        print(f"Running experiment {trial} on configuration: {configurations[trial]}")
+        for experiment in range(experiments):
+            test_acc, split_sizes = create_hierarchy(NUM_ROUNDS=ROUNDS, num_models=configuration["n_models"],
+                             x=x, y=y, x_test=x_test, y_test=y_test,
+                             branch_f=configuration["bf"], height=configuration["height"])
+
+            if trial == 0:
+                total_accuracy = copy.deepcopy(test_acc)
+            else:
+                for i in range(len(total_accuracy)):
+                    total_accuracy[i] += test_acc
+
+        for i in range(len(total_accuracy)):
+            total_accuracy[i] /= experiments
+
+
+        HA.record_experiments(
+        num_clients=configuration["n_models"],
+        split_proportions=split_sizes,
+        n_rounds=ROUNDS,
+        branching_factor=configuration["bf"],
+        height=configuration["height"],
+        aggregator_results=total_accuracy,
+        experiment_config=config_descriptions[trial])
+
+        trial += 1
+
+experiment_running(max_n_models=32, max_bf=None, max_height=5)
