@@ -1,5 +1,5 @@
 import copy
-
+import tqdm
 import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.keras.datasets import fashion_mnist, cifar10
