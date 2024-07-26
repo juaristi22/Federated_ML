@@ -350,7 +350,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2
                              branch_f=configuration["bf"], height=configuration["height"])
             print(f"Experiment {experiment} produces accuracy: {test_acc}")
 
-            if trial == 0:
+            if experiment == 0:
                 total_accuracy = copy.deepcopy(test_acc)
             else:
                 for i in range(len(total_accuracy)):
