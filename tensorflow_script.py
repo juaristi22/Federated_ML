@@ -340,7 +340,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     print(configurations)
     trial = 0
     for configuration in configurations:
-        print(f"Running experiment {trial} on configuration: {configurations[trial]}")
+        print(f"Running experimental configuration {trial} on configuration: {configurations[trial]}")
         for experiment in range(experiments):
             print(f"running experiment {experiment}")
             test_acc, split_sizes = create_hierarchy(NUM_ROUNDS=ROUNDS, num_models=configuration["n_models"],
