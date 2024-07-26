@@ -77,7 +77,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
-                if n_models >= height + 2:
+                if n_models >= height + 3:
                     #for data_dist in equal_data_dist:
                     configs_dict = {}
                     configs_dict["n_models"] = n_models
