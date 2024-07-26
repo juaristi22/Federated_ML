@@ -57,7 +57,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
-        HEIGHT = [i for i in range(4, max_height+1)]
+        HEIGHT = [i for i in range(5, max_height+1)]
     equal_data_dist = [True, False]
 
     configurations = []
