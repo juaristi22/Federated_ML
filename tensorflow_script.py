@@ -74,7 +74,7 @@ def get_model(classes=10,input_shape=(32,32,3)):
     return(model)
 
 def run_federation(num_models, rounds, x, y, x_test, y_test):
-    epochs_per_round = 5
+    epochs_per_round = 3
     bs = 128
 
     ###federated learning###
@@ -129,7 +129,6 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
 
     for round in range(NUM_ROUNDS):
         print(f"Round: {round}:")
-        iteration = 0
         weights_list = copy.deepcopy(client_weights)
         for m in range(num_models):
             print('training model ' + str(m + 1))
@@ -147,7 +146,6 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 for i in range(branch_f):
                     current_weights = weights_list.pop(0)
                     avg.append(current_weights)
-                print(f"client avg: {avg}")
                 averaged_weights = np.mean(np.array(avg,dtype='object'),axis=0)
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
@@ -158,7 +156,6 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 for i in range(len(weights_list)):
                     current_weights = weights_list.pop(0)
                     avg.append(current_weights)
-                print(f"client avg: {avg}")
                 averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
@@ -172,7 +169,6 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 for i in range(branch_f):
                     current_weights = weights_list.pop(0)
                     avg.append(current_weights)
-                print(f"aggregator avg: {avg}")
                 averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
@@ -182,7 +178,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 if len(aggregator_weights) == 1:
                     current_weights = aggregator_weights.pop(0)
                     global_model.set_weights(current_weights)
-                    print('global model performance after ' + str(round + 1) + ' round:')
+                    print('global model performance after ' + str(round + 1) + ' rounds:')
                     metrics = global_model.evaluate(x_test, y_test, batch_size=1024)
                     test_acc.append(metrics[1])
                 else:
@@ -190,7 +186,6 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                     for i in range(branch_f):
                         current_weights = weights_list.pop(0)
                         avg.append(current_weights)
-                    print(f"aggregator avg: {avg}")
                     averaged_weights = np.mean(np.array(avg, dtype='object'), axis=0)
                     global_model.set_weights(averaged_weights)
                     global_model.evaluate(x_test, y_test, batch_size=1024)
@@ -332,7 +327,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
 
 
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
-    ROUNDS = 5
+    ROUNDS = 3
 
     (x, y), (x_test, y_test) = cifar10.load_data()
     x = x / 255.0
@@ -347,6 +342,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     for configuration in configurations:
         print(f"Running experiment {trial} on configuration: {configurations[trial]}")
         for experiment in range(experiments):
+            print(f"running experiment {experiment}")
             test_acc, split_sizes = create_hierarchy(NUM_ROUNDS=ROUNDS, num_models=configuration["n_models"],
                              x=x, y=y, x_test=x_test, y_test=y_test,
                              branch_f=configuration["bf"], height=configuration["height"])
@@ -363,7 +359,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
 
         print(f"total accuracy for current configuration: {total_accuracy}")
 
-        HA.record_experiments(
+        record_experiments(
         num_clients=configuration["n_models"],
         split_proportions=split_sizes,
         n_rounds=ROUNDS,
