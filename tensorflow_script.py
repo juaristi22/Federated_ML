@@ -7,6 +7,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, BatchNormalizat
 from tensorflow.keras.utils import to_categorical as tc
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 ###set parameters###
 num_models = 8
@@ -74,7 +75,7 @@ def get_model(classes=10,input_shape=(32,32,3)):
     return(model)
 
 def run_federation(num_models, rounds, x, y, x_test, y_test):
-    epochs_per_round = 3
+    epochs_per_round = 5
     bs = 128
 
     ###federated learning###
@@ -106,7 +107,7 @@ def compute_bf(n_leaves, height):
 
 def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                      branch_f=None, height=None):
-    epochs_per_round = 5
+    epochs_per_round = 2
     bs = 128
 
     if (branch_f == None) and (height == None):
