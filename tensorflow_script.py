@@ -150,7 +150,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
                 aggregator_weights.append(averaged_weights)
-                print(f"averaged weights for branching factor of {branch_f}: {averaged_weights}")
+                print(f"averaging weights for branching factor of {branch_f}")
             else:
                 avg = []
                 for i in range(len(weights_list)):
@@ -160,7 +160,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
                 aggregator_weights.append(averaged_weights)
-                print(f"averaged weights for branching factor of {len(weights_list)}: {averaged_weights}")
+                print(f"averaging weights for branching factor of {len(weights_list)}")
 
         print('completing hierarchy with aggregator nodes')
         while aggregator_weights:
@@ -173,7 +173,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                 global_model.set_weights(averaged_weights)
                 global_model.evaluate(x_test, y_test, batch_size=1024)
                 aggregator_weights.append(averaged_weights)
-                print(f"averaged weights for branching factor of {branch_f}: {averaged_weights}")
+                print(f"averaging weights for branching factor of {branch_f}")
             else:
                 if len(aggregator_weights) == 1:
                     current_weights = aggregator_weights.pop(0)
@@ -190,7 +190,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                     global_model.set_weights(averaged_weights)
                     global_model.evaluate(x_test, y_test, batch_size=1024)
                     aggregator_weights.append(averaged_weights)
-                    print(f"averaged weights for branching factor of {len(weights_list)}: {averaged_weights}")
+                    print(f"averaging weights for branching factor of {len(weights_list)}")
 
     return test_acc, split_sizes
 
@@ -352,7 +352,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                 total_accuracy = copy.deepcopy(test_acc)
             else:
                 for i in range(len(total_accuracy)):
-                    total_accuracy[i] += test_acc
+                    total_accuracy[i] += test_acc[i]
 
         for i in range(len(total_accuracy)):
             total_accuracy[i] /= experiments
