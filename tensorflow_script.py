@@ -365,7 +365,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         n_rounds=ROUNDS,
         branching_factor=configuration["bf"],
         height=configuration["height"],
-        aggregator_results=total_accuracy,
+        accuracy_results=total_accuracy,
         experiment_config=config_descriptions[trial])
 
         trial += 1
