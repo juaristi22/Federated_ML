@@ -328,7 +328,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     return configurations, config_descriptions
 
 
-def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
+def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2):
     ROUNDS = 2
 
     (x, y), (x_test, y_test) = cifar10.load_data()
