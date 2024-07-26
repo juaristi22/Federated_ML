@@ -287,7 +287,7 @@ def record_experiments(
             + ".png",
         )
 
-    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
+    plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
 
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
