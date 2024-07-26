@@ -329,7 +329,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
 
 
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
-    ROUNDS = 3
+    ROUNDS = 2
 
     (x, y), (x_test, y_test) = cifar10.load_data()
     x = x / 255.0
