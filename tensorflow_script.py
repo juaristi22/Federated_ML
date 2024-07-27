@@ -109,7 +109,7 @@ def compute_bf(n_leaves, height):
 
 def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                      branch_f=None, height=None):
-    epochs_per_round = 2
+    epochs_per_round = 5
     bs = 128
 
     if (branch_f == None) and (height == None):
@@ -331,7 +331,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
 
 
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2):
-    ROUNDS = 2
+    ROUNDS = 10
 
     (x, y), (x_test, y_test) = cifar10.load_data()
     x = x / 255.0
