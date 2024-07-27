@@ -372,4 +372,10 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2
 
         trial += 1
 
+
+acc = [2.4235, 5.93427]
+plot_loss_curves(accuracies=acc, config="hello")
+
 experiment_running(max_n_models=10, max_bf=None, max_height=3)
+
+
