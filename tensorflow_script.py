@@ -108,7 +108,7 @@ def compute_bf(n_leaves, height):
 
 def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                      branch_f=None, height=None):
-    epochs_per_round = 5
+    epochs_per_round = 2
     bs = 128
 
     if (branch_f == None) and (height == None):
@@ -200,14 +200,15 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
 def plot_loss_curves(accuracies, config, filename=None):
     rounds = range(len(accuracies))
 
-    plt.plot(rounds, accuracies, color="blue")
-    plt.title(config)
-    plt.xlabel("Rounds")
-    plt.ylabel("Accuracy")
-    plt.grid()
+    fig, ax = plt.subplots()
+    ax.plot(rounds, accuracies, color="blue")
+    ax.set_title(config)
+    ax.set_xlabel("Rounds")
+    ax.set_ylabel("Accuracy")
+    ax.grid()
 
     if filename:
-        plt.savefig(fname=filename)
+        fig.savefig(fname=filename)
     else:
         plt.show()
 
@@ -291,7 +292,7 @@ def record_experiments(
 
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
-    NUM_MODELS = [i for i in range(22, max_n_models+1)]
+    NUM_MODELS = [i for i in range(2, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
@@ -329,7 +330,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
 
 
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2):
-    ROUNDS = 10
+    ROUNDS = 2
 
     (x, y), (x_test, y_test) = cifar10.load_data()
     x = x / 255.0
@@ -372,7 +373,6 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2
 
         trial += 1
 
-
-experiment_running(max_n_models=32, max_bf=None, max_height=5)
+experiment_running(max_n_models=4, max_bf=None, max_height=1)
 
 
