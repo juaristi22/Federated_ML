@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 import os
 import json
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress some TensorFlow logs
-os.environ['XLA_FLAGS'] = '--xla_gpu_cuda_data_dir=/usr/local/cuda'
 
 ###set parameters###
 num_models = 8
@@ -319,7 +317,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
-                if n_models >= height + 1:
+                if n_models >= height + 2:
                     #for data_dist in equal_data_dist:
                     configs_dict = {}
                     configs_dict["n_models"] = n_models
@@ -376,6 +374,6 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2
 
         trial += 1
 
-experiment_running(max_n_models=4, max_bf=None, max_height=1)
+experiment_running(max_n_models=32, max_bf=None, max_height=5)
 
 
