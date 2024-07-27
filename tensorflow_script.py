@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import os
 import json
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress some TensorFlow logs
+os.environ['XLA_FLAGS'] = '--xla_gpu_cuda_data_dir=/usr/local/cuda'
+
 ###set parameters###
 num_models = 8
 epochs_per_round = 5
@@ -47,7 +50,7 @@ def split_data(x, y, n_splits, equal_sizes):
     return x_splits, y_splits, split_sizes
 
 ###define model###
-def get_model(classes=10,input_shape=(32,32,3)):
+def get_model(classes=10):
     model = Sequential()
     model.add(Conv2D(32,3,1,padding='same',activation='relu',input_shape=input_shape))
     model.add(Dropout(.1))
