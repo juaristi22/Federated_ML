@@ -201,7 +201,7 @@ def plot_loss_curves(accuracies, config, filename=None):
     rounds = range(len(accuracies))
 
     plt.plot(rounds, accuracies, color="blue")
-    plt.set_title(config)
+    plt.title(config)
     plt.xlabel("Rounds")
     plt.ylabel("Accuracy")
     plt.grid()
