@@ -291,7 +291,7 @@ def record_experiments(
 
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
-    NUM_MODELS = [i for i in range(2, max_n_models+1)]
+    NUM_MODELS = [i for i in range(11, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
@@ -373,6 +373,6 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=2
         trial += 1
 
 
-experiment_running(max_n_models=10, max_bf=None, max_height=5)
+experiment_running(max_n_models=21, max_bf=None, max_height=5)
 
 
