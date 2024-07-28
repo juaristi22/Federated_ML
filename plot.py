@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import os
+import json
 
 def plot_loss_curves(height_1, height_2, height_3, height_4, height_5):
     rounds = range(len(height_1))
