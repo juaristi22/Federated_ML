@@ -53,7 +53,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
         the respective values of each hyperparameter
     config_descriptions: list[str], descriptions of all produced configurations
     """
-    NUM_MODELS = [i for i in range(33, max_n_models+1)]
+    NUM_MODELS = [i for i in range(2, max_n_models+1)]
     if max_bf:
         BRANCHING_FACTOR = [i for i in range(2, max_bf+1)]
     if max_height:
