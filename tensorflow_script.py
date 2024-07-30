@@ -78,7 +78,7 @@ def get_model(classes=10,input_shape=(32,32,3)):
 
 def run_federation(num_models, rounds, x, y, x_test, y_test):
     epochs_per_round = 5
-    bs = 128
+    bs = 256
 
     ###federated learning###
     global_model = get_model()
@@ -110,7 +110,7 @@ def compute_bf(n_leaves, height):
 def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                      branch_f=None, height=None):
     epochs_per_round = 5
-    bs = 128
+    bs = 256
 
     if (branch_f == None) and (height == None):
         raise ValueError("Please choose either a branching factor or "
@@ -125,10 +125,11 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
         branch_f = compute_bf(num_models, height)
 
     test_acc = []
-
+    iter = 0
     global_model = get_model()
     client_weights = [global_model.get_weights()] * num_models
     x_splits, y_splits, split_sizes = split_data(x, y, num_models, True)
+    client_weights.append(iter)
 
     for round in range(NUM_ROUNDS):
         print(f"Round: {round}:")
@@ -140,6 +141,9 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                              batch_size=bs, validation_data=(x_test, y_test), verbose=0)
             weights_list[m] = global_model.get_weights()
             client_weights[m] = global_model.get_weights()
+        print(client_weights[-1])
+        iter += 1
+        client_weights[-1] = iter
 
         aggregator_weights = []
         print('aggregating client models')
