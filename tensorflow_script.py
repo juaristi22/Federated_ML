@@ -133,6 +133,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
     for round in range(NUM_ROUNDS):
         print(f"Round: {round}:")
         weights_list = copy.deepcopy(client_weights)
+        print(f"weights_list: {weights_list[-1]})
         if round == 0:
             client_weights.append(iter)
         for m in range(num_models):
@@ -142,7 +143,7 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
                              batch_size=bs, validation_data=(x_test, y_test), verbose=0)
             weights_list[m] = global_model.get_weights()
             client_weights[m] = global_model.get_weights()
-        print(client_weights[-1])
+        print(f"client_weights: {client_weights[-1]}")
         iter += 1
         client_weights[-1] = iter
 

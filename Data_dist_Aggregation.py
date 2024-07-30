@@ -22,41 +22,50 @@ import Hierarchy_Aggregation as HA
 import logging
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-BATCH_SIZE = 256
 NUM_MODELS = 5
 MAX_EPOCHS = 10
 
+def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
+    BATCH_SIZE = 256
+    local_models_list, naming_dict = HA.initialize_models(NUM_MODELS)
 
-local_models_list, naming_dict = HA.initialize_models(NUM_MODELS)
+    local_trainloader, split_proportions = FM.split_data(
+        data=FM.train_data,
+        n_splits=NUM_MODELS,
+        batch_size=BATCH_SIZE,
+        equal_sizes=False)
 
-local_trainloader, split_proportions = FM.split_data(
-    data=FM.train_data,
-    n_splits=NUM_MODELS,
-    batch_size=BATCH_SIZE,
-    equal_sizes=False)
+    data_prop_dict = {}
+    for i in range(len(split_proportions)):
+        data_prop_dict[split_proportions[i]] = local_trainloader[i]
+    sorted_split_proportions = sort(split_proportions)
+    highest_dataload = sorted_split_proportions[0]
 
-data_prop_dict = {}
-for i in range(len(split_proportions)):
-    data_prop_dict[split_proportions[i]] = local_trainloader[i]
-sorted_split_proportions = sort(split_proportions)
-highest_dataload = sorted_split_proportions[0]
-
-for i in range(len(local_trainloader)):
-    model = local_models_list[i]
-    model.data = local_trainloader[i]
-    current_dataload = split_proportions[i]
-    if current_dataload == highest_dataload:
-        model.epochs = MAX_EPOCHS
-    else:
-        proportion = current_dataload / highest_dataload
-        if proportion >= 0.75:
+    for i in range(len(local_trainloader)):
+        model = local_models_list[i]
+        model.data = local_trainloader[i]
+        current_dataload = split_proportions[i]
+        if current_dataload == highest_dataload:
             model.epochs = MAX_EPOCHS
-        elif proportion >= 0.5 and proportion < 0.75:
-            EPOCHS = MAX_EPOCHS // (3/4)
-            model.epochs = EPOCHS
-        elif proportion >= 0.25 and proportion < 0.5:
-            EPOCHS = MAX_EPOCHS // 2
-            model.epochs = EPOCHS
-        elif proportion < 0.25:
-            EPOCHS = MAX_EPOCHS // 4
-            model.epochs = EPOCHS
+        else:
+            proportion = current_dataload / highest_dataload
+            if proportion >= 0.75:
+                model.epochs = MAX_EPOCHS
+            elif proportion >= 0.5 and proportion < 0.75:
+                EPOCHS = MAX_EPOCHS // (4/3)
+                model.epochs = EPOCHS
+            elif proportion >= 0.25 and proportion < 0.5:
+                EPOCHS = MAX_EPOCHS // (4/2)
+                model.epochs = EPOCHS
+            elif proportion < 0.25:
+                EPOCHS = MAX_EPOCHS // (4/1)
+                model.epochs = EPOCHS
+
+    return local_models_list, data_prop_dict
+
+local_models_list, data_prop_dict = map_epochs_to_data(10, 10)
+
+for i in local_models_list:
+    print(i)
+    print(i.data)
+    print(i.epochs)
