@@ -126,7 +126,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                 data=FM.train_data,
                 n_splits=configuration["n_models"],
                 batch_size=BATCH_SIZE,
-                equal_sizes=True)
+                equal_sizes=False)
 
             client_results, aggregator_results, naming_dict, genealogy = HA.create_hierarchy(
                                 local_models_list=local_models_list,
@@ -180,6 +180,44 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         experiment_config=config_descriptions[trial])
 
         trial += 1
+
+
+def plot_combined_heights(heights_list):
+    """
+    Plot the performance of all possible height aggregations for a given
+    number of client models
+
+    Parameters
+    ----------
+    heights_list: list[list], list of the accuracy results of each height
+        experimental configuration for a given number of client models
+    """
+    rounds = range(len(heights_list[0]))
+    n_models = 32
+
+    fig, ax = plt.subplots()
+
+    counter = 1
+    for height_acc in heights_list:
+        ax.plot(rounds, height_acc, color="blue", label=f"height: {counter}")
+        counter += 1
+    ax.set_title(f"Model performance for {n_models} client models")
+    ax.set_xlabel("Rounds")
+    ax.set_ylabel("Accuracy")
+    ax.legend()
+    ax.grid()
+
+    filename = os.path.join(
+        os.getcwd(),
+        "FM_results/HierarchicalBranchingFactor"
+        + "_clientmodels_"
+        + str(n_models)
+        + ".png")
+
+    if filename:
+        fig.savefig(fname=filename)
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

@@ -366,7 +366,7 @@ def record_experiments(
 
 def plot_loss_curves(results, config, filename=None):
     """
-    Plots te loss curves of a model's performance
+    Plots the loss curves of a model's performance
 
     Parameters
     ----------
