@@ -71,9 +71,9 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
                     configs_dict["n_models"] = n_models
                     configs_dict["bf"] = bf
                     configs_dict["height"] = None
-                    configs_dict["data_dist"] = True
+                    configs_dict["data_dist"] = False
                     configurations.append(configs_dict)
-                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{True}")
+                    config_descriptions.append(f"n_models_{n_models}_bf_{bf}_equal_data_dist{False}")
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
@@ -83,9 +83,9 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
                     configs_dict["n_models"] = n_models
                     configs_dict["bf"] = None
                     configs_dict["height"] = height
-                    configs_dict["data_dist"] = True
+                    configs_dict["data_dist"] = False
                     configurations.append(configs_dict)
-                    config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{True}")
+                    config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{False}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     max_n_models = args["max_n_models"]
     max_bf = args["max_bf"]
     max_height = args["max_height"]
-    experiment_running(max_n_models=40, max_bf=None, max_height=5)
+    experiment_running(max_n_models=32, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
     #logger_setup(filename)
 
