@@ -129,11 +129,12 @@ def create_hierarchy(NUM_ROUNDS, num_models, x, y, x_test, y_test,
     global_model = get_model()
     client_weights = [global_model.get_weights()] * num_models
     x_splits, y_splits, split_sizes = split_data(x, y, num_models, True)
-    client_weights.append(iter)
 
     for round in range(NUM_ROUNDS):
         print(f"Round: {round}:")
         weights_list = copy.deepcopy(client_weights)
+        if round == 0:
+            client_weights.append(iter)
         for m in range(num_models):
             print('training model ' + str(m + 1))
             global_model.set_weights(client_weights[m])

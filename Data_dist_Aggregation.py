@@ -48,4 +48,15 @@ for i in range(len(local_trainloader)):
     if current_dataload == highest_dataload:
         model.epochs = MAX_EPOCHS
     else:
-        pass
+        proportion = current_dataload / highest_dataload
+        if proportion >= 0.75:
+            model.epochs = MAX_EPOCHS
+        elif proportion >= 0.5 and proportion < 0.75:
+            EPOCHS = MAX_EPOCHS // (3/4)
+            model.epochs = EPOCHS
+        elif proportion >= 0.25 and proportion < 0.5:
+            EPOCHS = MAX_EPOCHS // 2
+            model.epochs = EPOCHS
+        elif proportion < 0.25:
+            EPOCHS = MAX_EPOCHS // 4
+            model.epochs = EPOCHS
