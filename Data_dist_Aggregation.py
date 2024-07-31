@@ -54,7 +54,8 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
             print(model.epochs)
         else:
             proportion = current_dataload / highest_dataload
-            print(proportion)
+            print(f"current dataload: {current_dataload}")
+            print(f"proportion: {proportion}")
             if proportion >= 0.75:
                 model.epochs = MAX_EPOCHS
             elif proportion >= 0.5 and proportion < 0.75:
