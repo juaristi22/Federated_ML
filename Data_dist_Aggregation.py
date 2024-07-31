@@ -51,25 +51,29 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
         current_dataload = split_proportions[i]
         if current_dataload == highest_dataload:
             model.epochs = MAX_EPOCHS
+            print(model.epochs)
         else:
             proportion = current_dataload / highest_dataload
             if proportion >= 0.75:
                 model.epochs = MAX_EPOCHS
             elif proportion >= 0.5 and proportion < 0.75:
                 EPOCHS = MAX_EPOCHS // (4/3)
+                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion >= 0.25 and proportion < 0.5:
                 EPOCHS = MAX_EPOCHS // (4/2)
+                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion < 0.25:
                 EPOCHS = MAX_EPOCHS // (4/1)
+                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
 
     return local_models_list, data_prop_dict
 
 local_models_list, data_prop_dict = map_epochs_to_data(10, 10)
 
+print("local models list:")
 for i in local_models_list:
     print(i)
-    print(i.data)
     print(i.epochs)
