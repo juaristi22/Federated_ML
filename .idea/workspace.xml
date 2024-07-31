@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="" />
+    <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data_dist_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/Data_dist_Aggregation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/Federated_Model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Hierarchy_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/Hierarchy_Aggregation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Hierarchy_Experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/Hierarchy_Experiments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simple_experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated Learning/federation_experiments.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,6 +48,14 @@
     &quot;last_opened_file_path&quot;: &quot;/Users/movil1/Documents/GitHub/Federated_ML&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Federated Learning/Hierarchical Design" />
+      <recent name="$PROJECT_DIR$/Federated Learning/Experimentation" />
+      <recent name="$PROJECT_DIR$/Federated Learning" />
+      <recent name="$PROJECT_DIR$/bash" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

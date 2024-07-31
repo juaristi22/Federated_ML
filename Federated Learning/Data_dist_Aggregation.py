@@ -26,6 +26,17 @@ NUM_MODELS = 5
 MAX_EPOCHS = 10
 
 def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
+    """
+    Randomly distributes data across all client models and
+        calculates the number of epochs that each client model
+        should run given its data load
+
+    Parameters
+    ----------
+    NUM_MODELS: int, number of client models
+    MAX_EPOCHS: int, number of epochs that the model with largest
+        data load should run for
+    """
     BATCH_SIZE = 256
     local_models_list, naming_dict = HA.initialize_models(NUM_MODELS)
 
@@ -35,15 +46,14 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
         batch_size=BATCH_SIZE,
         equal_sizes=False)
 
-    data_prop_dict = {}
-    for i in range(len(split_proportions)):
-        data_prop_dict[split_proportions[i]] = local_trainloader[i]
     sorted_split_proportions = copy.deepcopy(split_proportions)
     sorted_split_proportions.sort()
     highest_dataload = sorted_split_proportions[-1]
 
+    data_prop_dict = {}
     for i in range(len(local_trainloader)):
         model = local_models_list[i]
+        data_prop_dict[split_proportions[i]] = model
         model.data = local_trainloader[i]
         current_dataload = split_proportions[i]
         if current_dataload == highest_dataload:
@@ -81,4 +91,6 @@ def create_hierarchy(local_models_list, naming_dict, data_prop_dict, sorted_spli
         client_results[i.name] = results
     aggregator_results = {}
     results = {"test_loss": [], "test_acc": []}
+
+    ### TO DO
 

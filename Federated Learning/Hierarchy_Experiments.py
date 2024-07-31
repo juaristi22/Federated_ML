@@ -1,40 +1,12 @@
 import torch
-from torch import nn
-import torchvision
-from torchvision import datasets
-from torchvision import transforms
-from torchvision.transforms import ToTensor
-from torch.utils.data import DataLoader, RandomSampler, Subset
-from torchinfo import summary
-import torchmetrics
 
-import copy
-from collections import OrderedDict
 from tqdm.auto import tqdm
-import random
-from timeit import default_timer as timer
 import matplotlib.pyplot as plt
-import json
 import os
 import argparse
 import Federated_Model as FM
 import Hierarchy_Aggregation as HA
 import logging
-
-def logger_setup(filename):
-    # Set up logging
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    log_filename = os.path.join(filename, "FL_test_out.txt")
-    file_handler = logging.FileHandler(log_filename)
-    stream_handler = logging.StreamHandler(sys.stdout)
-
-    # log format
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
     """
@@ -250,5 +222,4 @@ if __name__ == "__main__":
     max_height = args["max_height"]
     experiment_running(max_n_models=32, max_bf=None, max_height=5)
     #filename = experiment_running(n_models=max_n_models, bf=max_bf)
-    #logger_setup(filename)
 

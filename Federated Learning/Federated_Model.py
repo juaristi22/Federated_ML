@@ -148,7 +148,6 @@ def train_step(model, data_loader, loss_fn, optimizer, device):
         X, y = X.to(device), y.to(device)
         y_pred = model(X)
         loss = loss_fn(y_pred, y)
-        #print(f"train loss: {loss}")
         train_loss += loss.item()
         train_acc += accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
 
@@ -191,7 +190,6 @@ def test_step(model, data_loader, loss_fn, device):
             X, y = X.to(device), y.to(device)
             test_pred = model(X)
             loss = loss_fn(test_pred, y)
-            # print(f"test loss: {loss}")
             test_loss += loss.item()
             test_acc += accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
             num_steps += 1
@@ -226,8 +224,6 @@ def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, devi
     test_acc: float, average testing accuracy for the dataloader at hand
     """
     for epoch in range(epochs):
-        # print(f"Epoch: {epoch} \n--------")
-
         train_loss, train_acc = train_step(
             model=model,
             data_loader=train_dataloader,
@@ -270,7 +266,7 @@ def average(local_models_params):
                     averaged_params[parameter] = parameter_value
     return averaged_params
 
-def print_train_time(start, end, device=None):
+def print_train_time(start, end):
     """
     Prints the time taken to train the model
 
@@ -278,7 +274,6 @@ def print_train_time(start, end, device=None):
     ----------
     start: float, starting time
     end: float, ending time
-    device: str, device in which the training was performed
 
     Returns
     -------
@@ -326,6 +321,7 @@ def record_experiments(
         "local_results": local_results,
     }
 
+    # check there is no other file with that name to avoid overwriting
     experiment = 0
     while os.path.exists(
         os.path.join(
@@ -345,6 +341,7 @@ def record_experiments(
     ):
         experiment += 1
 
+    # save results
     with open(
         os.path.join(
             os.getcwd(),
@@ -435,6 +432,7 @@ def split_data(data, n_splits, batch_size, equal_sizes):
             split_sizes.append(split)
             total_size -= split
         split_sizes.append(total_size)
+
     indices = list(range(len(data)))
     data_splits = []
     start_idx = 0
@@ -619,10 +617,9 @@ def federate_model(
         local_results=local_results,
     )
 
-    # print("Local model results:")
+    # print result figures
     for client, results in local_results.items():
         plot_loss_curves(results)
-    # print("Global model results:")
     plot_loss_curves(global_results)
 
     return global_results
@@ -662,29 +659,31 @@ if __name__ == "__main__":
         help="choose if data should be split randomly",
     )
 
+    # command line parameters
     args = vars(parser.parse_args())
-    #lr = args["learning_rate"]
-    #num_models = args["num_models"]
-    #rounds = args["num_rounds"]
-    #epochs = args["num_epochs"]
-    #data_sizing = args["equal_data_sizes"]
-    #data_sizing = args["unequal_data_sizes"]
+    lr = args["learning_rate"]
+    num_models = args["num_models"]
+    rounds = args["num_rounds"]
+    epochs = args["num_epochs"]
+    data_sizing = args["equal_data_sizes"]
+    data_sizing = args["unequal_data_sizes"]
 
-    #federate_model(
-        #global_model_instance=global_model,
-        #train_data=train_data,
-        #test_data=test_data,
-        #learning_rate=lr,
-        #equal_sizes=data_sizing,
-        #NUM_MODELS=num_models,
-        #NUM_ROUNDS=rounds,
-        #EPOCHS=epochs)
+    federate_model(
+        global_model_instance=global_model,
+        train_data=train_data,
+        test_data=test_data,
+        learning_rate=lr,
+        equal_sizes=data_sizing,
+        NUM_MODELS=num_models,
+        NUM_ROUNDS=rounds,
+        EPOCHS=epochs)
 
+    # in case of running pre-specified parameters
     federate_model(
             global_model_instance=global_model,
             train_data=train_data,
             test_data=test_data,
-            learning_rate=0.000001,
+            learning_rate=0.00001,
             equal_sizes=True,
             NUM_MODELS=2,
             NUM_ROUNDS=1,

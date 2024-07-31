@@ -1,23 +1,9 @@
 import Federated_Model as FM
-import torch
-from torch import nn
-import torchvision
 from torchvision import datasets
-from torchvision import transforms
 from torchvision.transforms import ToTensor
-from torch.utils.data import DataLoader, RandomSampler, Subset
-from torchinfo import summary
 
-import copy
-from tqdm.auto import tqdm
-import random
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
-import json
-import os
-import argparse
-import logging
-def run_experiments(learning_rate, n_models, num_experiments):
+device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
+def run_experiments(learning_rate, n_models, num_experiments, epochs, rounds, device=device, filename=None):
     """
     Runs experiments for the Federated_Model.py
         script with different hyperparameter configurations
@@ -27,11 +13,14 @@ def run_experiments(learning_rate, n_models, num_experiments):
     learning_rate: float, models' learning rate
     n_models: int, number of local models to experiment on
     num_experiments: int, number of experiments to run
+    epochs: int, number of epochs that each model should train for
+    rounds: int, number of rounds of federations
+    device: str, default:device, device on which to perform computation
+    filename: str, default:None, path to folder in which to save figures
     """
 
-    EPOCHS = 2
-    ROUNDS = 2
-    device = "cuda"
+    EPOCHS = epochs
+    ROUNDS = rounds
 
     train_data = datasets.CIFAR10(
         root="data",
@@ -119,7 +108,9 @@ def run_experiments(learning_rate, n_models, num_experiments):
 
         results_dict[f"random data dist, {local_models} clients"] = experiment_results
 
-        #FM.plot_loss_curves(experiment_results)
-    print(results_dict)
+        if filename:
+            FM.plot_loss_curves(experiment_results, filename=filename)
 
-run_experiments(learning_rate=0.0001, n_models=2, num_experiments=2)
+    return results_dict
+
+run_experiments(learning_rate=0.0001, n_models=2, num_experiments=2, epochs=2, rounds=5)
