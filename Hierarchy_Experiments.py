@@ -77,7 +77,7 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
-                if n_models <= 8 and height == 1:
+                if n_models <= 9 and height == 1:
                     continue
                 else:
                     if n_models >= height + 3:
