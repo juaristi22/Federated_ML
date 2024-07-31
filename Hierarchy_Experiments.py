@@ -77,15 +77,18 @@ def experiment_configs(max_n_models, max_bf=None, max_height=None):
     elif max_height:
         for height in HEIGHT:
             for n_models in NUM_MODELS:
-                if n_models >= height + 3:
-                    #for data_dist in equal_data_dist:
-                    configs_dict = {}
-                    configs_dict["n_models"] = n_models
-                    configs_dict["bf"] = None
-                    configs_dict["height"] = height
-                    configs_dict["data_dist"] = False
-                    configurations.append(configs_dict)
-                    config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{False}")
+                if n_models <= 8 and height == 1:
+                    continue
+                else:
+                    if n_models >= height + 3:
+                        #for data_dist in equal_data_dist:
+                        configs_dict = {}
+                        configs_dict["n_models"] = n_models
+                        configs_dict["bf"] = None
+                        configs_dict["height"] = height
+                        configs_dict["data_dist"] = False
+                        configurations.append(configs_dict)
+                        config_descriptions.append(f"n_models_{n_models}_height_{height}_equal_data_dist{False}")
 
     return configurations, config_descriptions
 def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3):
