@@ -125,11 +125,12 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                 NUM_MODELS=configuration["n_models"],
                 epochs=EPOCHS,
                 lr=learning_rate)
-            local_trainloader, split_proportions = FM.split_data(
-                data=FM.train_data,
-                n_splits=configuration["n_models"],
-                batch_size=BATCH_SIZE,
-                equal_sizes=False)
+            if experiment == 0:
+                local_trainloader, split_proportions = FM.split_data(
+                    data=FM.train_data,
+                    n_splits=configuration["n_models"],
+                    batch_size=BATCH_SIZE,
+                    equal_sizes=False)
 
             client_results, aggregator_results, naming_dict, genealogy = HA.create_hierarchy(
                                 local_models_list=local_models_list,
