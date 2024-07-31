@@ -432,7 +432,7 @@ def split_data(data, n_splits, batch_size, equal_sizes):
         split_sizes = []
         for i in range(n_splits - 1):
             print(f"{i} data left: {total_size}")
-            split = random.randrange(1, total_size)
+            split = random.randrange(1, total_size-1)
             split_sizes.append(split)
             total_size -= split
         split_sizes.append(total_size)
