@@ -36,14 +36,11 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
         equal_sizes=False)
 
     data_prop_dict = {}
-    print(split_proportions)
     for i in range(len(split_proportions)):
         data_prop_dict[split_proportions[i]] = local_trainloader[i]
     sorted_split_proportions = copy.deepcopy(split_proportions)
     sorted_split_proportions.sort()
-    print(sorted_split_proportions)
     highest_dataload = sorted_split_proportions[-1]
-    print(highest_dataload)
 
     for i in range(len(local_trainloader)):
         model = local_models_list[i]
@@ -51,34 +48,37 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
         current_dataload = split_proportions[i]
         if current_dataload == highest_dataload:
             model.epochs = MAX_EPOCHS
-            print(model.epochs)
         else:
             proportion = current_dataload / highest_dataload
-            print(f"current dataload: {current_dataload}")
-            print(f"proportion: {proportion}")
             if proportion >= 0.75:
                 model.epochs = MAX_EPOCHS
             elif proportion >= 0.5 and proportion < 0.75:
                 EPOCHS = MAX_EPOCHS // (4/3)
-                print(MAX_EPOCHS / (4/3))
-                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion >= 0.25 and proportion < 0.5:
                 EPOCHS = MAX_EPOCHS // (4/2)
-                print(MAX_EPOCHS / (4/2))
-                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion < 0.25:
                 EPOCHS = MAX_EPOCHS // (4/1)
-                print(MAX_EPOCHS / (4/1))
-                print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
 
-    return local_models_list, data_prop_dict
+    return local_models_list, naming_dict, data_prop_dict, sorted_split_proportions
 
-local_models_list, data_prop_dict = map_epochs_to_data(10, 10)
+local_models_list, naming_dict, data_prop_dict, sorted_split_proportions = map_epochs_to_data(10, 10)
 
-print("local models list:")
-for i in local_models_list:
-    print(i)
-    print(i.epochs)
+BATCH_SIZE = 256
+
+general_testloader = DataLoader(
+    dataset=FM.test_data, batch_size=BATCH_SIZE, shuffle=True)
+
+def create_hierarchy(local_models_list, naming_dict, data_prop_dict, sorted_split_proportions, general_testloader, device=device):
+    NUM_ROUNDS = 10
+
+    loss_fn = nn.CrossEntropyLoss()
+    client_results = {}
+    for i in local_models_list:
+        results = {"train_loss": [], "train_acc": [], "test_loss": [], "test_acc": []}
+        client_results[i.name] = results
+    aggregator_results = {}
+    results = {"test_loss": [], "test_acc": []}
+
