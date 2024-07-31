@@ -58,14 +58,17 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
                 model.epochs = MAX_EPOCHS
             elif proportion >= 0.5 and proportion < 0.75:
                 EPOCHS = MAX_EPOCHS // (4/3)
+                print(MAX_EPOCHS / (4/3))
                 print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion >= 0.25 and proportion < 0.5:
                 EPOCHS = MAX_EPOCHS // (4/2)
+                print(MAX_EPOCHS / (4/2))
                 print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
             elif proportion < 0.25:
                 EPOCHS = MAX_EPOCHS // (4/1)
+                print(MAX_EPOCHS / (4/1))
                 print(f"Epochs: {EPOCHS}")
                 model.epochs = EPOCHS
 
