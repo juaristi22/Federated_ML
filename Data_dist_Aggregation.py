@@ -38,7 +38,7 @@ def map_epochs_to_data(NUM_MODELS, MAX_EPOCHS):
     data_prop_dict = {}
     for i in range(len(split_proportions)):
         data_prop_dict[split_proportions[i]] = local_trainloader[i]
-    sorted_split_proportions = sort(split_proportions)
+    sorted_split_proportions = split_proportions.sort()
     highest_dataload = sorted_split_proportions[0]
 
     for i in range(len(local_trainloader)):
