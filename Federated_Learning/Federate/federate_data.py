@@ -4,6 +4,7 @@ from torchvision import datasets
 from torchvision import transforms
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader, RandomSampler, Subset
+import random
 
 
 train_data = datasets.CIFAR10(

@@ -4,8 +4,10 @@ from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
 import os
 import argparse
-from Federated_Learning.Federate import Federate_Model as FM
-import Hierarchy_Aggregation as HA
+from Federated_Learning.Federate.Federate_Model import federate_model, train_data
+from Federated_Learning.Aggregate.Hierarchy_Aggregation import general_testloader, create_hierarchy, record_experiments
+from Federated_Learning.Aggregate.initialization import initialize_models
+from Federated_Learning.Federate.federate_data import split_data
 
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
@@ -81,8 +83,6 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
     EPOCHS = 5
     ROUNDS = 10
 
-    general_testloader = HA.general_testloader
-
     configurations, config_descriptions = experiment_configs(
                                             max_n_models=max_n_models,
                                             max_bf=max_bf,
@@ -93,18 +93,18 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
         total_client_results = {}
         total_aggregator_results = {}
         for experiment in range(experiments):
-            local_models_list, naming_dict = HA.initialize_models(
+            local_models_list, naming_dict = initialize_models(
                 NUM_MODELS=configuration["n_models"],
                 epochs=EPOCHS,
                 lr=learning_rate)
             if experiment == 0:
-                local_trainloader, split_proportions = FM.split_data(
-                    data=FM.train_data,
+                local_trainloader, split_proportions = split_data(
+                    data=train_data,
                     n_splits=configuration["n_models"],
                     batch_size=BATCH_SIZE,
                     equal_sizes=False)
 
-            client_results, aggregator_results, naming_dict, genealogy = HA.create_hierarchy(
+            client_results, aggregator_results, naming_dict, genealogy = create_hierarchy(
                                 local_models_list=local_models_list,
                                 naming_dict=naming_dict,
                                 local_trainloader=local_trainloader,
@@ -144,7 +144,7 @@ def experiment_running(max_n_models, max_bf=None, max_height=None, experiments=3
                 for i in range(len(total_aggregator_results[agg][metric])):
                     total_aggregator_results[agg][metric][i] /= experiments
 
-        HA.record_experiments(
+        record_experiments(
         model=local_models_list[0],
         num_clients=configuration["n_models"],
         split_proportions=split_proportions,
