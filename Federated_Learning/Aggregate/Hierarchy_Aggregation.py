@@ -6,183 +6,13 @@ import copy
 import random
 import json
 import os
-import Federated_Model as FM
+from Federated_Learning.Federate.Federate_Model import federate_model, train_data, test_data
+from Federated_Learning.Learn.Model import Client, Aggregator
+from Federated_Learning.helper_functions import plot_loss_curves, compute_bf
+from Federated_Learning.Federate.federate_data import split_data
+from initialization import initialize_models
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
-class Client(FM.NewModel):
-    def __init__(self, input_shape, hidden_units, output_shape,
-                 epochs=None, data=None, learning_rate=0.000001, device=device):
-        super().__init__(input_shape, hidden_units, output_shape)
-        self.lr = learning_rate
-        self.optimizer = None
-        self.epochs = epochs
-        self.data = data
-        self.parent = None
-        self.name = None
-
-    def train_step(self, data_loader, loss_fn, optimizer, device=device):
-        for epoch in range(self.epochs):
-            train_loss, train_acc = 0, 0
-
-            self.train()
-            num_steps = 0
-
-            for batch, (X, y) in enumerate(data_loader):
-                X, y = X.to(device), y.to(device)
-                y_pred = self.forward(X)
-                loss = loss_fn(y_pred, y)
-                train_loss += loss.item()
-                train_acc += FM.accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
-
-                loss.backward()
-                optimizer.step()
-                optimizer.zero_grad()
-
-                num_steps += 1
-
-            train_loss /= num_steps
-            train_acc /= num_steps
-            train_acc *= 100
-
-        # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
-
-        return train_loss, train_acc
-
-    def test_step(self, data_loader, loss_fn, device=device):
-        test_loss, test_acc = 0, 0
-        self.eval()
-        num_steps = 0
-
-        with ((torch.inference_mode())):
-            for X, y in data_loader:
-                X, y = X.to(device), y.to(device)
-                test_pred = self.forward(X)
-                loss = loss_fn(test_pred, y)
-                test_loss += loss.item()
-                test_acc += FM.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
-                num_steps += 1
-
-            test_loss /= num_steps
-            test_acc /= num_steps
-            test_acc *= 100
-
-        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
-
-        return test_loss, test_acc
-    def named(self, n):
-        self.name = (f"{self.__class__.__name__}_{n}")
-    def __str__(self):
-        return self.name
-
-class Aggregator(FM.NewModel):
-    def __init__(self, input_shape, hidden_units, output_shape, device=device):
-        super().__init__(input_shape, hidden_units, output_shape)
-        self.parent = None
-        self.children_nodes = []
-        self.name = None
-
-    def add_child(self, child):
-        self.children.append(child)
-    def test_step(self, data_loader, loss_fn, device=device):
-        test_loss, test_acc = 0, 0
-        self.eval()
-        num_steps = 0
-
-        with ((torch.inference_mode())):
-            for X, y in data_loader:
-                X, y = X.to(device), y.to(device)
-                test_pred = self.forward(X)
-                loss = loss_fn(test_pred, y)
-                test_loss += loss.item()
-                test_acc += FM.accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
-                num_steps += 1
-
-            test_loss /= num_steps
-            test_acc /= num_steps
-            test_acc *= 100
-
-        print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
-
-        return test_loss, test_acc
-
-    def average(self, clients_params):
-        with torch.no_grad():
-            averaged_params = clients_params.popitem()[1]
-            for parameter in averaged_params:
-                for model_state in clients_params:
-                    parameter_value = clients_params[model_state][parameter]
-                    parameter_value += averaged_params[parameter]
-                    parameter_value = (1 / 2) * torch.clone(parameter_value)
-                    averaged_params[parameter] = parameter_value
-        return averaged_params
-
-    def named(self, n):
-        self.name = (f"{self.__class__.__name__}_{n}")
-
-    def __str__(self):
-        return self.name
-
-def initialize_models(
-    NUM_MODELS, device=device, epochs=5, lr=0.000001):
-    input_shape = 3
-    hidden_units = 10
-    output_shape = 10
-    """
-    Initializes all client models keeping track of their names
-    
-    Parameters
-    ----------
-    NUM_MODELS: int, number of client models
-    device: str, device computation will take place on
-    epochs: int, number of epochs each client model will train for
-    lr: float, models' learning rate
-    
-    Returns 
-    -------
-    local_models_list: list[Client instances], list of all client models
-    naming_dict: dict, dictionary of the client models' names and their instances
-    """
-
-    # create NUM_MODELS client model instances
-    def create_local_models(num_models, input_shape, hidden_units, output_shape):
-        """
-        Instantiates Client model instances
-
-        Parameters
-        ----------
-        num_models: int, number of client models
-        input_shape: int, number of channels in input data
-        hidden_units: int, Client model layers' hidden units
-        output_shape: int, number of labels
-
-        Returns
-        -------
-        clients_list: list[Client objects], list with all client model instances
-        naming_dict: dict, dictionary of all client models' names and their instances
-        """
-        clients_list = []
-        naming_dict = dict()
-        for i in range(num_models):
-            instance = Client(
-                        input_shape=input_shape,
-                        hidden_units=hidden_units,
-                        output_shape=output_shape,
-                        learning_rate=lr,
-                        epochs=epochs).to(device)
-            instance.named(i)
-            naming_dict[instance.name] = instance
-            instance.optimizer = torch.optim.SGD(params=instance.parameters(), lr=instance.lr)
-            clients_list.append(instance)
-        return clients_list, naming_dict
-
-    local_models_list, naming_dict = create_local_models(
-        num_models=NUM_MODELS,
-        input_shape=input_shape,
-        hidden_units=hidden_units,
-        output_shape=output_shape,
-    )
-    return local_models_list, naming_dict
-
 
 BATCH_SIZE = 256
 NUM_MODELS = 2
@@ -191,14 +21,14 @@ NUM_ROUNDS = 10
 BRANCH_FACTOR = 2
 
 general_trainloader = DataLoader(
-    dataset=FM.train_data, batch_size=BATCH_SIZE, shuffle=True)
+    dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
 
 general_testloader = DataLoader(
-    dataset=FM.test_data, batch_size=BATCH_SIZE, shuffle=True)
+    dataset=test_data, batch_size=BATCH_SIZE, shuffle=True)
 
 # split training data for the local models
-local_trainloader, split_proportions = FM.split_data(
-    data=FM.train_data,
+local_trainloader, split_proportions = split_data(
+    data=train_data,
     n_splits=NUM_MODELS,
     batch_size=BATCH_SIZE,
     equal_sizes=equal_sizes)
@@ -306,7 +136,7 @@ def record_experiments(
             + ".png",
         )
 
-    FM.plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
+    plot_loss_curves(aggregator_results["Global_Model"], filename=filename, config=experiment_config)
 
     return filename
 
@@ -357,24 +187,6 @@ def evaluate_aggregator(model, test_data, agg_results, loss_fn):
     agg_results[model.name]["test_acc"].append(test_acc)
     return agg_results
 
-def compute_bf(n_leaves, height):
-    """
-    Calculate the maximum branching factor of the hierarchical
-        aggregation based on the desired depth of the tree
-
-    Parameters
-    ----------
-    n_leafs: int, number of leaves in the tree
-        ie. number of client models
-    height: int, desired height of the tree
-
-    Returns
-    -------
-    bf: int, maximum branching factor
-    """
-    bf = n_leaves * (1/height)
-    bf = round(bf)
-    return bf
 def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportions,
                      local_trainloader, general_testloader,
                      device=device, branch_f=None, height=None, experiment_config=None):
@@ -614,17 +426,6 @@ def create_hierarchy(local_models_list, naming_dict, NUM_ROUNDS, split_proportio
 
     for i in genealogy:
         print(f"{i.name}´s children: {i.children_nodes}")
-
-    #record_experiments(
-        #model=client,
-        #num_clients=len(local_models_list),
-        #split_proportions=split_proportions,
-        #n_rounds=NUM_ROUNDS,
-        #branching_factor=branch_f,
-        #height=height,
-        #client_results=client_results,
-        #aggregator_results=aggregator_results,
-        #experiment_config=experiment_config)
 
     return client_results, aggregator_results, naming_dict, genealogy
 

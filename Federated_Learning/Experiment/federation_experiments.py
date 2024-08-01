@@ -1,11 +1,13 @@
-import Federated_Model as FM
+from Federated_Learning.Federate.Federate_Model import federate_model
+from Federated_Learning.Learn.Model import CNNModel, NewModel
+from Federated_Learning.helper_functions import plot_loss_curves
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 def run_experiments(learning_rate, n_models, num_experiments, epochs, rounds, device=device, filename=None):
     """
-    Runs experiments for the Federated_Model.py
+    Runs experiments for the Federate_Model.py
         script with different hyperparameter configurations
 
     Parameters
@@ -39,9 +41,9 @@ def run_experiments(learning_rate, n_models, num_experiments, epochs, rounds, de
     for local_models in range(1, n_models+1):
         experiment_results = 0
         for i in range(num_experiments):
-            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
+            global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
 
-            global_results = FM.federate_model(global_model_instance=global_model,
+            global_results = federate_model(global_model_instance=global_model,
                                                train_data=train_data,
                                                test_data=test_data,
                                                learning_rate=learning_rate,
@@ -75,9 +77,9 @@ def run_experiments(learning_rate, n_models, num_experiments, epochs, rounds, de
     for local_models in range(1, n_models+1):
         experiment_results = 0
         for i in range(num_experiments):
-            global_model = FM.CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
+            global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(device)
 
-            global_results = FM.federate_model(global_model_instance=global_model,
+            global_results = federate_model(global_model_instance=global_model,
                                                train_data=train_data,
                                                test_data=test_data,
                                                learning_rate=learning_rate,
@@ -109,7 +111,7 @@ def run_experiments(learning_rate, n_models, num_experiments, epochs, rounds, de
         results_dict[f"random data dist, {local_models} clients"] = experiment_results
 
         if filename:
-            FM.plot_loss_curves(experiment_results, filename=filename)
+            plot_loss_curves(experiment_results, filename=filename)
 
     return results_dict
 

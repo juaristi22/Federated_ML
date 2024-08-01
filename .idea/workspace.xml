@@ -4,7 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="" />
+    <list default="true" id="ccaaa0c9-e0e8-4454-9608-b5228355a30a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Aggregate/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Aggregate/initialization.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Experiment/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Federate/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Federate/federate_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Learn/Model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Learn/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Learn/testing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/Learn/training.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Federated_Learning/helper_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Learning/Data_dist_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Learning/Aggregate/Data_dist_Aggregation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Learning/Federated_Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Learning/Federate/Federate_Model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Learning/Hierarchy_Aggregation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Learning/Aggregate/Hierarchy_Aggregation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Learning/Hierarchy_Experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Learning/Experiment/Hierarchy_Experiments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Federated_Learning/federation_experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/Federated_Learning/Experiment/federation_experiments.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -42,10 +59,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Federated_Learning/Aggregate" />
+      <recent name="$PROJECT_DIR$/Federated_Learning/Experiment" />
+      <recent name="$PROJECT_DIR$/Federated_Learning/Federate" />
       <recent name="$PROJECT_DIR$/Federated Learning/Hierarchical Design" />
       <recent name="$PROJECT_DIR$/Federated Learning/Experimentation" />
-      <recent name="$PROJECT_DIR$/Federated Learning" />
-      <recent name="$PROJECT_DIR$/bash" />
     </key>
   </component>
   <component name="SharedIndexes">

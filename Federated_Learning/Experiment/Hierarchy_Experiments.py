@@ -4,9 +4,9 @@ from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
 import os
 import argparse
-import Federated_Model as FM
+from Federated_Learning.Federate import Federate_Model as FM
 import Hierarchy_Aggregation as HA
-import logging
+
 
 def experiment_configs(max_n_models, max_bf=None, max_height=None):
     """

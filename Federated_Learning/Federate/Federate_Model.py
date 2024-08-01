@@ -17,7 +17,12 @@ import matplotlib.pyplot as plt
 import json
 import os
 import argparse
-import logging
+
+from Federated_Learning.Learn.Model import CNNModel, NewModel
+from Federated_Learning.Learn.training import train_step
+from Federated_Learning.Learn.testing import test_step
+from federate_data import split_data
+from Federated_Learning.helper_functions import average, plot_loss_curves
 
 train_data = datasets.CIFAR10(
     root="data", train=True, download=True, transform=ToTensor())
@@ -31,176 +36,10 @@ class_names = train_data.classes
 class_to_idx = train_data.class_to_idx
 class_to_idx
 
-
-class CNNModel(nn.Module):
-    def __init__(self, input_shape, hidden_units, output_shape):
-        super().__init__()
-        self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=input_shape,
-                out_channels=hidden_units,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=hidden_units,
-                out_channels=hidden_units,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 14 * 14, out_features=output_shape),
-        )
-
-    def forward(self, x):
-        x = self.conv_block_1(x)
-        x = self.classifier(x)
-        return x
-
-class NewModel(nn.Module):
-    def __init__(self, input_shape, hidden_units, output_shape):
-        super().__init__()
-        self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=input_shape,
-                out_channels=32,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=32,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,
-                         stride=2),
-        )
-        self.conv_block_2 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,
-                         stride=2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(in_features=64 * 8 * 8, out_features=output_shape),
-        )
-
-    def forward(self, x):
-        x = self.conv_block_1(x)
-        x = self.conv_block_2(x)
-        x = self.classifier(x)
-        return x
-
 global_model = CNNModel(input_shape=3, hidden_units=10, output_shape=10).to(
     device)
 
 accuracy_fn = torchmetrics.classification.Accuracy(task="multiclass", num_classes=10).to(device)
-
-def train_step(model, data_loader, loss_fn, optimizer, device):
-    """
-    Performs the training step for the machine learning model
-
-    Parameters
-    ----------
-    model: CNNModel instance
-    data_loader: dataloader object, train data
-    loss_fn: nn.CrossEntropyLoss instance, loss function
-    optimizer: torch,optim,SGD instance, learning optimizer
-    device: str, device in which to train
-
-    Returns
-    -------
-    train_loss: float, average training loss for the dataloader at hand
-    train_acc: float, average training accuracy for the dataloader at hand
-    """
-    train_loss, train_acc = 0, 0
-    model.train()
-    num_steps = 0
-
-    for batch, (X, y) in enumerate(data_loader):
-        X, y = X.to(device), y.to(device)
-        y_pred = model(X)
-        loss = loss_fn(y_pred, y)
-        train_loss += loss.item()
-        train_acc += accuracy_fn(target=y, preds=y_pred.argmax(dim=1)).item()
-
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
-
-        num_steps += 1
-
-    train_loss /= num_steps
-    train_acc /= num_steps
-    train_acc *= 100
-
-    # print(f"Train loss: {train_loss:.5f} | Train acc: {train_acc:.2f}%")
-
-    return train_loss, train_acc
-
-def test_step(model, data_loader, loss_fn, device):
-    """
-    Performs the testing step for the machine learning model
-
-    Parameters
-    ----------
-    model: CNNModel instance
-    data_loader: dataloader object, test data
-    loss_fn: nn.CrossEntropyLoss instance, loss function
-    device: str, device in which to train
-
-    Returns
-    -------
-    test_loss: float, average testing loss for the dataloader at hand
-    test_acc: float, average testing accuracy for the dataloader at hand
-    """
-    test_loss, test_acc = 0, 0
-    model.eval()
-    num_steps = 0
-
-    with ((torch.inference_mode())):
-        for X, y in data_loader:
-            X, y = X.to(device), y.to(device)
-            test_pred = model(X)
-            loss = loss_fn(test_pred, y)
-            test_loss += loss.item()
-            test_acc += accuracy_fn(target=y, preds=test_pred.argmax(dim=1)).item()
-            num_steps += 1
-
-        test_loss /= num_steps
-        test_acc /= num_steps
-        test_acc *= 100
-
-    print(f"\nTest loss: {test_loss:.5f} | Test acc: {test_acc:.2f}%\n")
-
-    return test_loss, test_acc
 
 def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, device, epochs):
     """
@@ -240,47 +79,6 @@ def run_model(model, train_dataloader, test_dataloader, optimizer, loss_fn, devi
         )
 
     return train_loss, train_acc, test_loss, test_acc
-
-def average(local_models_params):
-    """
-    Averages the parameters of given models to perform federation
-
-    Parameters
-    ----------
-    local_models_params: list[tensor], parameters of all client models to be averaged
-
-    Returns
-    -------
-    averaged_params: tensor, average of all models' parameters
-    """
-    with torch.no_grad():
-        averaged_params = local_models_params[0]
-        for parameter in averaged_params:
-            for model_state in local_models_params:
-                if model_state == local_models_params[0]:
-                    continue
-                else:
-                    parameter_value = local_models_params[model_state][parameter]
-                    parameter_value += averaged_params[parameter]
-                    parameter_value = (1 / 2) * torch.clone(parameter_value)
-                    averaged_params[parameter] = parameter_value
-    return averaged_params
-
-def print_train_time(start, end):
-    """
-    Prints the time taken to train the model
-
-    Parameters
-    ----------
-    start: float, starting time
-    end: float, ending time
-
-    Returns
-    -------
-    total_time: float, total time taken to train the model
-    """
-    total_time = end - start
-    return total_time
 
 def record_experiments(
     global_model,
@@ -361,93 +159,6 @@ def record_experiments(
     ) as f:
         json.dump(results_dict, f)
 
-def plot_loss_curves(results, config, filename=None):
-    """
-    Plots the loss curves of a model's performance
-
-    Parameters
-    ----------
-    results: dict, model's performance results
-    filename: str, default:None, directory path on which to save figures
-    """
-    test_accuracy = results["test_acc"]
-    test_loss = results["test_loss"]
-    if len(results) > 2:
-        loss = results["train_loss"]
-        accuracy = results["train_acc"]
-    else:
-        loss = None
-        accuracy = None
-
-    rounds = range(len(results["test_loss"]))
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 7))
-    ax1.grid()
-    ax2.grid()
-    if config:
-        fig.suptitle(config)
-
-    if loss and len(loss) > 0:
-        ax1.plot(rounds, loss, label="train_loss", color="blue")
-    ax1.plot(rounds, test_loss, label="test_loss", color="orange")
-    ax1.set_title("Loss")
-    ax1.set_xlabel("Rounds")
-    ax1.legend()
-
-
-    if accuracy and len(accuracy) > 0:
-        ax2.plot(rounds, accuracy, label="train_accuracy", color="blue")
-    ax2.plot(rounds, test_accuracy, label="test_accuracy", color="orange")
-    ax2.set_title("Accuracy")
-    ax2.set_xlabel("Rounds")
-    ax2.legend()
-    if filename:
-        plt.savefig(fname=filename)
-    else:
-        plt.show()
-
-def split_data(data, n_splits, batch_size, equal_sizes):
-    """
-    Splits training data either uniformly or randomly across client models
-
-    Parameters
-    ----------
-    data: dataset
-    n_splits: int, number of client models in which data must be split
-    batch_size: int, batch size
-    equal_sizes: bool, whether data should be uniformly distributed or not
-
-    Returns
-    -------
-    data_splits: list[dataloader objects], data that each model will train on
-    split_sizes: list[int], amount of data that each model will train on
-    """
-    if equal_sizes:
-        split_sizes = [len(data) // n_splits for _ in range(n_splits)]
-    else:
-        total_size = len(data)
-        split_sizes = []
-        for i in range(n_splits - 1):
-            max_split_size = total_size - (n_splits - i - 1)
-            split = random.randrange(1, max_split_size)
-            print(f"split: {split}")
-            split_sizes.append(split)
-            total_size -= split
-            print(f"data remaining: {total_size}")
-        split_sizes.append(total_size)
-
-    indices = list(range(len(data)))
-    data_splits = []
-    start_idx = 0
-    for size in split_sizes:
-        end_idx = start_idx + size
-        subset_indices = indices[start_idx:end_idx]
-        subset = Subset(data, subset_indices)
-        data_loader = DataLoader(subset, batch_size=batch_size)
-        data_splits.append(data_loader)
-        start_idx = end_idx
-    return data_splits, split_sizes
-
 def federate_model(
     global_model_instance,
     train_data,
@@ -498,10 +209,12 @@ def federate_model(
         equal_sizes=equal_sizes,
     )
 
+    # to use in case we want all models to train on the same data
     general_trainloader = DataLoader(
         dataset=train_data, batch_size=BATCH_SIZE, shuffle=True
     )
 
+    # testing data
     general_testloader = DataLoader(
         dataset=test_data, batch_size=BATCH_SIZE, shuffle=True
     )
